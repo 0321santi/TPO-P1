@@ -1,13 +1,28 @@
-print("""
-  /$$$$$$                                          /$$            /$$$$$$   /$$                                                     
- /$$__  $$                                        | $$           /$$__  $$ | $$                                                     
-| $$  \__/  /$$$$$$  /$$$$$$$  /$$$$$$$$  /$$$$$$ | $$  /$$$$$$ | $$  \__//$$$$$$    /$$$$$$   /$$$$$$  /$$$$$$   /$$$$$$   /$$$$$$ 
-| $$ /$$$$ /$$__  $$| $$__  $$|____ /$$/ |____  $$| $$ /$$__  $$|  $$$$$$|_  $$_/   /$$__  $$ /$$__  $$|____  $$ /$$__  $$ /$$__  $$
-| $$|_  $$| $$$$$$$$| $$  \ $$   /$$$$/   /$$$$$$$| $$| $$  \ $$ \____  $$ | $$    | $$  \ $$| $$  \__/ /$$$$$$$| $$  \ $$| $$$$$$$$
-| $$  \ $$| $$_____/| $$  | $$  /$$__/   /$$__  $$| $$| $$  | $$ /$$  \ $$ | $$ /$$| $$  | $$| $$      /$$__  $$| $$  | $$| $$_____/
-|  $$$$$$/|  $$$$$$$| $$  | $$ /$$$$$$$$|  $$$$$$$| $$|  $$$$$$/|  $$$$$$/ |  $$$$/|  $$$$$$/| $$     |  $$$$$$$|  $$$$$$$|  $$$$$$$
- \______/  \_______/|__/  |__/|________/ \_______/|__/ \______/  \______/   \___/   \______/ |__/      \_______/ \____  $$ \_______/
-                                                                                                                 /$$  \ $$          
-                                                                                                                |  $$$$$$/          
-                                                                                                                 \______/           
-                                                                                                                 """)
+#def
+def listas(sku,existencias):
+    lista1=[] #lista de sku
+    lista2=[] #lista de existencias
+
+print("""Bienvenido, seleccione una opción:
+      1. Ingresar SKU
+      2. Buscar SKU
+      3. Eliminar SKU
+      4. Salir""")
+seleccion=(int(input("Opción seleccionada: ")))
+if seleccion==1:
+    sku=int(input("Ingrese el SKU: "))
+    lista1.append(sku)
+    existencias=int(input("Ingrese las existencias: "))
+    lista2.append(existencias)
+    print("SKU y existencias ingresados correctamente")
+elif seleccion==2:
+    sku=int(input("Ingrese el SKU a buscar: "))
+    if sku in lista1:
+        
+        print("El SKU",sku,"tiene",existencias,"existencias")
+elif seleccion==3:
+    sku=int(input("Ingrese el SKU a eliminar: "))
+    if sku in lista1:
+        print("SKU eliminado correctamente")
+    else:
+        print("SKU no encontrado")
