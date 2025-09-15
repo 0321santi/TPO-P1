@@ -1,4 +1,3 @@
-# funciones
 def ingresar_sku(matriz):
     error = False
     sku = int(input("Ingrese el SKU: "))
@@ -28,6 +27,8 @@ def ingresar_sku(matriz):
     print("SKU y existencias ingresados correctamente.")
     return matriz
 
+def normalizar(texto):
+    return texto.strip().lower()
 
 def buscar_sku(matriz, bandera):
     sku = int(input("Ingrese el SKU a buscar: "))
@@ -50,15 +51,57 @@ def buscar_producto(matriz):
     print("¡Error! Producto no encontrado")
     return
 
+def modificar(matriz):
+    seleccion2 = normalizar(input("modificar SKU (1) o Producto (2) o Existencias (3): "))
+    match seleccion2:
+        case "1"|"uno"|"modificar sku":
+            sku = int(input("Ingrese el SKU a modificar: "))
+            for item in matriz:
+                if item[0] == sku:
+                    nuevo_sku = int(input("Ingrese el nuevo SKU: "))
+                    item[0] = nuevo_sku
+                    print("SKU modificado correctamente.")
+                    return
+        case "2"|"dos"|"modificar producto":
+            producto = input("Ingrese el nombre del producto a modificar: ")
+            for item in matriz:
+                if item[1] == producto:
+                    nuevo_producto = input("Ingrese el nuevo nombre del producto: ")
+                    item[1] = nuevo_producto
+                    print("Producto modificado correctamente.")
+                    return
+        case "3"|"tres"|"modificar existencias":
+            sku = int(input("Ingrese el SKU del producto cuyas existencias desea modificar: ")) 
+            for item in matriz:
+                if item[0] == sku:
+                    nuevas_existencias = int(input("Ingrese las nuevas existencias: "))
+                    item[2] = nuevas_existencias
+                    print("Existencias modificadas correctamente.")
+                    return
+        case _:
+            print("¡Error! Opción no válida…")
 
 def eliminar_sku(matriz):
-    sku = int(input("Ingrese el SKU a eliminar: "))
-    for i, item in enumerate(matriz):
-        if item[0] == sku:
-            matriz.pop(i)
-            print("SKU eliminado correctamente.")
-            return
-    print("¡Error! SKU no encontrado…")
+    seleccion2 = normalizar(input("Eliminar por SKU (1), Eliminar Producto (2)"))
+    match seleccion2:
+        case "1"|"uno"|" sku":
+            sku = int(input("Ingrese el SKU a eliminar: "))
+            for i, item in enumerate(matriz):
+                if item[0] == sku:
+                    matriz.pop(i)
+                    print("SKU eliminado correctamente.")
+                    return
+            print("¡Error! SKU no encontrado…")
+        case "2"|"dos"|"eliminar producto":
+            producto = normalizar(input("Ingrese el nombre del producto a eliminar: "))
+            for i, item in enumerate(matriz):
+                if normalizar(item[1]) == producto:
+                    matriz.pop(i)
+                    print("Producto eliminado correctamente.")
+                    return
+            print("¡Error! Producto no encontrado…")
+        case _:
+            print("¡Error! Opción no válida…")
 
 
 # programa principal
@@ -73,9 +116,9 @@ print("""Bienvenido, seleccione una opción:
       7. Otros""")
 
 while True:
-    seleccion = (int(input("Opción seleccionada: ")))
-    match seleccion:
-        case 0:
+    seleccion = (input("Opción seleccionada: "))
+    match normalizar(seleccion):
+        case "0" |"cero"|"opciones":
             print("""Opciones disponibles:
         1. Ingresar SKU
         2. Buscar SKU
@@ -85,69 +128,68 @@ while True:
         6. Salir
         7. Otros""")
 
-        case 1:
+        case "1"|"uno"|"ingresar sku":
             ingresar_sku(matriz)
-            otro = int(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
-            while otro == 1:
+            otro = normalizar(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
+            while otro in ("1", "si", "yes"):
                 ingresar_sku(matriz)
-                otro = int(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
-            while otro != 0 and otro != 1:
+                otro = normalizar(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
+            while otro not in ("0", "1", "si", "yes"):
                 print("¡Error! Opción no válida…")
-                otro = int(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
-
-        case 2:
+                otro = normalizar(input("¿Desea ingresar otro SKU? (0=NO, 1=SÍ): "))
+                
+        case "2"|"dos"|"buscar sku":
             bandera = True
             buscar_sku(matriz, bandera)
             if bandera == False:
-                seleccion1 = int(input("¿Desea ingresarlo? (0=NO, 1=SÍ): "))
-                if seleccion1 == 1:
+                seleccion1 = normalizar(input("¿Desea ingresarlo? (0=NO, 1=SÍ): "))
+                if seleccion1 in ("1", "si", "yes"):
                     ingresar_sku(matriz)
-            otro = int(input("¿Desea buscar otro SKU? (0=NO, 1=SÍ): "))
+            otro = normalizar(input("¿Desea buscar otro SKU? (0=NO, 1=SÍ): "))
             while otro == 1:
                 buscar_sku(matriz, bandera)
                 if bandera == False:
-                    seleccion1 = int(input("¿Desea ingresarlo? (0=NO, 1=SÍ): "))
-                    if seleccion1 == 1:
+                    seleccion1 = normalizar(input("¿Desea ingresarlo? (0=NO, 1=SÍ): "))
+                    if seleccion1 in ("1", "si", "yes"):
                         ingresar_sku(matriz)
-                otro = int(input("¿Desea buscar otro SKU? (0=NO, 1=SÍ): "))
-            while otro != 0 and otro != 1:
+                otro = normalizar(input("¿Desea buscar otro SKU? (0=NO, 1=SÍ): "))
+            while otro not in ("0", "1", "si", "yes"):
                 print("¡Error! Opción no válida…")
                 otro = int(input("¿Desea buscar otro SKU? (0=NO, 1=SÍ): "))
 
-        case 3:
+        case "3"|"tres"|"buscar producto":
             buscar_producto(matriz)
             otro = int(input("¿Desea buscar otro producto? (0=NO, 1=SÍ): "))
-            while otro == 1:
+            while otro in (1, "si", "yes"):
                 buscar_producto(matriz)
                 otro = int(input("¿Desea buscar otro producto? (0=NO, 1=SÍ): "))
-            while otro != 0 and otro != 1:
+            while otro not in (0, 1, "si", "yes"):
                 print("¡Error! Opción no válida…")
                 otro = int(input("¿Desea buscar otro producto? (0=NO, 1=SÍ): "))
 
-        case 4:
+        case "4"|"cuatro"|"eliminar sku":
             eliminar_sku(matriz)
             otro = int(input("¿Desea eliminar otro SKU? (0=NO, 1=SÍ): "))
-            while otro == 1:
+            while otro in (1, "si", "yes"):
                 eliminar_sku(matriz)
                 otro = int(input("¿Desea eliminar otro SKU? (0=NO, 1=SÍ): "))
-            while otro != 0 and otro != 1:
+            while otro not in (0, 1, "si", "yes"):
                 print("¡Error! Opción no válida…")
                 otro = int(input("¿Desea eliminar otro SKU? (0=NO, 1=SÍ): "))
 
-        case 5:
+        case "5"|"cinco"|"mostrar inventario":
             print("Inventario actual")
             print("[SKU, Nombre, Existencias]")
             for fila in matriz:
                 print(fila)
 
-        case 6:
-            print("Gracias por usar GenzaloStorage. Saliendo del programa…")
+        case "6"|"seis"|"salir":
+            print("Gracias por usar el programa…")
             print("Inventario final ([SKU, Nombre, Existencias]):", matriz)
             break
 
-        case 7:
+        case "7"|"siete"|"otros":
             print("Versión de GenzaloStorage: 0.1 ALFA")
 
         case _:
             print("¡Error! Opción no válida…")
-    
