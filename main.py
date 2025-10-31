@@ -1,3 +1,4 @@
+
 '''
 mostrar una lista por búsqueda aproximada (filtrar por nombre parcial)
 opción de salir
@@ -47,7 +48,7 @@ try:
                 while otro in ("1", "si", "yes"):
                     buscar(matriz)
                     otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "1", "si", "yes"):
+                while otro not in ("0", "no", "1", "si", "yes"):
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
 
@@ -57,7 +58,7 @@ try:
                 while otro in ("1", "si", "yes"):
                     eliminar(matriz)
                     otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "1", "si", "yes"):
+                while otro not in ("0", "no", "1", "si", "yes"):
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
 
@@ -67,7 +68,7 @@ try:
                 while otro in ("1", "si", "yes"):
                     modificar(matriz)
                     otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "1", "si", "yes"):
+                while otro not in ("0", "no", "1", "si", "yes"):
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
 
