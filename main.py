@@ -1,3 +1,17 @@
+'''
+mostrar una lista por búsqueda aproximada (filtrar por nombre parcial)
+opción de salir
+Manejar categorías (lácteos, especias... ósea filtrar por tipo de producto)
+Stock mínimo
+Mejorar como se ve la matriz (Sacar corchetes y todo lo demas)
+Matrices traspuestas 
+return adentro de for :'c
+agregar la posibilidad de agregarle subcategorías a las categorías determinado por cliente.
+Agregar una guía (biblia) que explique determiandamente que hace el programa.
+modo de edición, modo de ingreso.
+'''
+
+
 # ...existing code...
 from funcion import normalizar, ingresar, buscar, eliminar, modificar
 
@@ -16,7 +30,8 @@ try:
             4. Modificar categorias
             5. Salir""")
 
-            case "1" | "uno" | "ingresar" | "ingresar sku":
+
+            case "1" | "uno" | "ingresar" | "ingresar sku": #Se deberia poner para ingresar dentro de las categorias existentes (no permitir ingresar si no existen categorias)
                 ingresar(matriz)
                 otro = normalizar(input("¿Desea ingresar otro SKU? (0=no, 1=sí): "))
                 while otro in ("1", "si", "yes"):
@@ -26,7 +41,7 @@ try:
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea ingresar otro SKU? (0=no, 1=sí): "))
 
-            case "2" | "dos" | "buscar" | "buscar sku":
+            case "2" | "dos" | "buscar" | "buscar sku": #busqueda aproximada
                 buscar(matriz)
                 otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
                 while otro in ("1", "si", "yes"):
@@ -36,7 +51,7 @@ try:
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
 
-            case "3" | "tres" | "eliminar" | "eliminar sku":
+            case "3" | "tres" | "eliminar" | "eliminar sku": #capaz podemos sacar esto y ponerlo dentro de la modificacion de categorias?
                 eliminar(matriz)
                 otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
                 while otro in ("1", "si", "yes"):
@@ -46,7 +61,7 @@ try:
                     print("¡Error! Opción no válida…")
                     otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
 
-            case "4" | "cuatro" | "modificar":
+            case "4" | "cuatro" | "modificar": #deberia modificar las categorias y sub categorias (creacion ilimitada de categorias)
                 modificar(matriz)
                 otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
                 while otro in ("1", "si", "yes"):

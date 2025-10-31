@@ -25,7 +25,7 @@ def buscar (matriz):
     Seleccione una opción: """))
     
     match seleccion:
-        case "1"|"uno"|"buscar sku":
+        case "1"|"uno"|"buscar sku": 
             sku = int(input("Ingrese el SKU a buscar: "))
             #busqueda exacta
             for item in matriz:
@@ -238,7 +238,7 @@ def ingresar(matriz):
 
 
 
-def modificar(matriz,bandera):
+def modificar(matriz):
     seleccion2 = normalizar(input("modificar SKU (1) o Producto (2) o Existencias (3): "))
     match seleccion2:
         
