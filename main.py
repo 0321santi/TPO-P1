@@ -63,7 +63,7 @@ try:
                     otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
 
             case "4" | "cuatro" | "modificar": #deberia modificar las categorias y sub categorias (creacion ilimitada de categorias)
-                modificar(matriz)
+                modificar(matriz) #Si no hay nada no le importa y sigue (revisar) no suelta error.
                 otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
                 while otro in ("1", "si", "yes"):
                     modificar(matriz)
@@ -83,3 +83,5 @@ except Exception as e:
 
 finally:
     print("Programa finalizado.")
+
+#No hay tabla de todos los productos y categorias (Osea siento que deberia haber un display pero al profe no le gustaba)
