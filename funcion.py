@@ -203,7 +203,7 @@ def ingresar(matriz):
     #CATEGORIA y SUBCATEGORIA únicos  
     op = input("¿Desea agregar categoría? (sí=1/no=0): ")
     if normalizar(op) in ["sí", "si", "s", "1"]:
-        categoria = input("Ingrese la categoría del producto: ") #NOOOOOOOOOOOOOO
+        categoria = input("Ingrese la categoría del producto: ") #jesus
         for cat in matriz:
             if cat[4] == categoria:
                 error = True
