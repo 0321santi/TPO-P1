@@ -203,7 +203,7 @@ def ingresar(matriz):
     #CATEGORIA y SUBCATEGORIA únicos  
     op = input("¿Desea agregar categoría? (sí=1/no=0): ")
     if normalizar(op) in ["sí", "si", "s", "1"]:
-        categoria = input("Ingrese la categoría del producto: ")
+        categoria = input("Ingrese la categoría del producto: ") #NOOOOOOOOOOOOOO
         for cat in matriz:
             if cat[4] == categoria:
                 error = True
@@ -238,10 +238,9 @@ def ingresar(matriz):
 
 
 
-def modificar(matriz):
-    seleccion2 = normalizar(input("modificar SKU (1) o Producto (2) o Existencias (3): "))
+def modificar(matriz): #voy a cambiar todo esto. (Se supone que deberia agregar modificar y eliminar no cambiar los sku dentro)
+    seleccion2 = normalizar(input("Agregar categoria (1) o Producto (2) o Existencias (3): "))
     match seleccion2:
-        
         case "1"|"uno"|"modificar sku":
             sku = int(input("Ingrese el SKU a modificar: "))
             for item in matriz:
@@ -289,7 +288,7 @@ def modificar(matriz):
                         item[3] = nuevo_precio
                         print("Precio modificado correctamente.")
                         return
-                    
+                          
         case _:
             print("¡Error! Opción no válida…")
 
