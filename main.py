@@ -13,75 +13,121 @@ modo de edición, modo de ingreso.
 '''
 
 
-# ...existing code...
-from funcion import normalizar, ingresar, buscar, eliminar, modificar
+# programa principal (versión actualizada)
+from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar, cargar_memory
 
-# programa principal
+def menu_principal():
+    print("""╔══════════════════════════════╗
+║        SISTEMA DE INVENTARIO      ║
+╠══════════════════════════════╣
+║ 1. SKU                        ║
+║ 2. Categorías                 ║
+║ 3. Buscar                     ║
+║ 4. Salir                      ║
+╚══════════════════════════════╝""")
+
+def menu_sku():
+    print("""╔══════════════════════════════╗
+║           GESTIÓN DE SKU         ║
+╠══════════════════════════════╣
+║ 1. Agregar SKU                ║
+║ 2. Eliminar SKU               ║
+║ 3. Modificar SKU              ║
+║ 4. Volver al menú principal   ║
+╚══════════════════════════════╝""")
+
+def menu_categorias():
+    print("""╔══════════════════════════════╗
+║        GESTIÓN DE CATEGORÍAS    ║
+╠══════════════════════════════╣
+║ 1. Agregar categoría          ║
+║ 2. Eliminar categoría         ║
+║ 3. Modificar categoría        ║
+║ 4. Ver todas las categorías   ║
+║ 5. Volver al menú principal   ║
+╚══════════════════════════════╝""")
+
 try:
-    matriz = []
-
     while True:
-        seleccion = input("Ingrese que quiere hacer (0 para opciones): ")
+        menu_principal()
+        seleccion = input("Seleccione una opción: ")
+        
         match normalizar(seleccion):
-            case "0" | "cero" | "opciones":
-                print("""Opciones disponibles:
-            1. Ingresar sku
-            2. Buscar
-            3. Eliminar sku
-            4. Modificar categorias
-            5. Salir""")
-
-
-            case "1" | "uno" | "ingresar" | "ingresar sku": #Se deberia poner para ingresar dentro de las categorias existentes (no permitir ingresar si no existen categorias)
-                ingresar(matriz)
-                otro = normalizar(input("¿Desea ingresar otro SKU? (0=no, 1=sí): "))
-                while otro in ("1", "si", "yes"):
-                    ingresar(matriz)
-                    otro = normalizar(input("¿Desea ingresar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "no", "1", "si", "yes"):
-                    print("¡Error! Opción no válida…")
-                    otro = normalizar(input("¿Desea ingresar otro SKU? (0=no, 1=sí): "))
-
-            case "2" | "dos" | "buscar" | "buscar sku": #busqueda aproximada
-                buscar(matriz)
-                otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
-                while otro in ("1", "si", "yes"):
-                    buscar(matriz)
-                    otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "no", "1", "si", "yes"):
-                    print("¡Error! Opción no válida…")
-                    otro = normalizar(input("¿Desea buscar otro SKU? (0=no, 1=sí): "))
-
-            case "3" | "tres" | "eliminar" | "eliminar sku": #capaz podemos sacar esto y ponerlo dentro de la modificacion de categorias?
-                eliminar(matriz)
-                otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
-                while otro in ("1", "si", "yes"):
-                    eliminar(matriz)
-                    otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "no", "1", "si", "yes"):
-                    print("¡Error! Opción no válida…")
-                    otro = normalizar(input("¿Desea eliminar otro SKU? (0=no, 1=sí): "))
-
-            case "4" | "cuatro" | "modificar": #deberia modificar las categorias y sub categorias (creacion ilimitada de categorias)
-                modificar(matriz) #Si no hay nada no le importa y sigue (revisar) no suelta error.
-                otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
-                while otro in ("1", "si", "yes"):
-                    modificar(matriz)
-                    otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
-                while otro not in ("0", "no", "1", "si", "yes"):
-                    print("¡Error! Opción no válida…")
-                    otro = normalizar(input("¿Desea modificar otro SKU? (0=no, 1=sí): "))
-
-            case "5" | "cinco" | "salir":
+            case "1" | "uno" | "sku":
+                while True:
+                    menu_sku()
+                    opcion_sku = input("Seleccione una opción: ")
+                    
+                    match normalizar(opcion_sku):
+                        case "1" | "uno" | "agregar" | "agregar sku":
+                            ingresar()
+                            input("Presione Enter para continuar...")
+                            
+                        case "2" | "dos" | "eliminar" | "eliminar sku":
+                            eliminar()
+                            input("Presione Enter para continuar...")
+                            
+                        case "3" | "tres" | "modificar" | "modificar sku":
+                            modificar()
+                            input("Presione Enter para continuar...")
+                            
+                        case "4" | "cuatro" | "volver" | "menu principal":
+                            break
+                            
+                        case _:
+                            print("¡Error! Opción no válida…")
+                            input("Presione Enter para continuar...")
+            
+            case "2" | "dos" | "categorias" | "categorías":
+                while True:
+                    menu_categorias()
+                    opcion_cat = input("Seleccione una opción: ")
+                    
+                    match normalizar(opcion_cat):
+                        case "1" | "uno" | "agregar" | "agregar categoría":
+                            gestionar_categoria_modo("agregar")
+                            input("Presione Enter para continuar...")
+                            
+                        case "2" | "dos" | "eliminar" | "eliminar categoría":
+                            gestionar_categoria_modo("eliminar")
+                            input("Presione Enter para continuar...")
+                            
+                        case "3" | "tres" | "modificar" | "modificar categoría":
+                            gestionar_categoria_modo("modificar")
+                            input("Presione Enter para continuar...")
+                            
+                        case "4" | "cuatro" | "ver" | "ver categorías":
+                            gestionar_categoria_modo("ver")
+                            input("Presione Enter para continuar...")
+                            
+                        case "5" | "cinco" | "volver" | "menu principal":
+                            break
+                            
+                        case _:
+                            print("¡Error! Opción no válida…")
+                            input("Presione Enter para continuar...")
+            
+            case "3" | "tres" | "buscar":
+                buscar()
+                input("Presione Enter para continuar...")
+            
+            case "4" | "cuatro" | "salir":
+                print("¡Gracias por usar el sistema!")
                 break
-
+            
             case _:
                 print("¡Error! Opción no válida…")
+                input("Presione Enter para continuar...")
 
 except Exception as e:
     print("¡Error! Ha ocurrido un problema:", e)
+    input("Presione Enter para continuar...")
 
 finally:
     print("Programa finalizado.")
+
+finally:
+    print("Programa finalizado.")
+
 
 #No hay tabla de todos los productos y categorias (Osea siento que deberia haber un display pero al profe no le gustaba)
