@@ -6,14 +6,14 @@ def cargar_memory():
     try:
         with open('memory.json', 'r', encoding='utf-8') as f:
             return json.load(f)
-    except FileNotFoundError:
+    except Exception as e:
         # Estructura inicial del JSON
         data = {
             "productos": [],
             "categorias": []
         }
         guardar_memory(data)
-        return data
+    return data
 
 def guardar_memory(data):
     """Guarda los datos en memory.json"""
