@@ -1,5 +1,16 @@
 # funcion.py
 import json
+from datetime import datetime
+
+def escribir_log(mensaje, nivel="INFO"):
+    """Escribe un mensaje en el archivo de log"""
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open('inventario.txt', 'a', encoding='utf-8') as f:
+            f.write(f"{timestamp} - {nivel} - {mensaje}\n")
+    except Exception as e:
+        print(f"Error al escribir en log: {e}")
+    
 
 def cargar_memory():
     """Carga los datos desde memory.json, si no existe crea una estructura básica"""
@@ -13,6 +24,21 @@ def cargar_memory():
             "categorias": []
         }
         guardar_memory(data)
+        escribir_log(f"Error al cargar memory.json: {e}", nivel="ERROR")
+    except json.JSONDecodeError:
+        data = {
+            "productos": [],
+            "categorias": []
+        }
+        guardar_memory(data)
+        escribir_log("Error de decodificación JSON en memory.json. Se ha reiniciado el archivo.", nivel="ERROR")
+    except FileNotFoundError:
+        data = {
+            "productos": [],
+            "categorias": []
+        }
+        guardar_memory(data)
+        escribir_log("memory.json no encontrado. Se ha creado un nuevo archivo.", nivel="WARNING")
     return data
 
 def guardar_memory(data):
@@ -53,21 +79,22 @@ def buscar():
                 for producto in productos:
                     if producto["sku"] == sku:
                         categorias_str = ", ".join(producto["categorias"]) if producto["categorias"] else "Sin categorías"
-                        print(f"El SKU Nº {sku} corresponde al producto «{producto['nombre']}», tiene {producto['existencias']} existencia(s), un precio de ${producto['precio']:.2f} y categorías: {categorias_str}.")
+                        print(f"El SKU Nº {sku} corresponde al producto «{producto['nombre']}», tiene {producto['existencias']} existencia(s), un precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
                         return True
                         
                 # Si no se encuentra, busqueda aproximada
                 sugerencias = sorted(productos, key=lambda x: abs(x["sku"] - sku))[:3]
                 if sugerencias:
-                    print("SKU no encontrado. ¿Quizás quiso decir uno de estos?:")
+                    print("SKU no encontrado. ¿Quizá buscaba alguno de los siguientes?:")
                     for prod in sugerencias:
-                        categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                        print(f" → SKU {prod['sku']}: {prod['nombre']} ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
+                        categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías."
+                        print(f" → SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
                 else:
                     print("¡Error! SKU no encontrado…")
                 return False
             except ValueError:
-                print("¡Error! Ingrese un SKU válido (número entero).")
+                escribir_log("Error al ingresar SKU en búsqueda.", nivel="ERROR")
+                print("¡Error! Ingrese un SKU válido.")
                 return False
                    
         case "2"|"dos"|"buscar producto":
@@ -77,7 +104,7 @@ def buscar():
             for producto in productos:
                 if normalizar(producto["nombre"]) == consulta_norm:
                     categorias_str = ", ".join(producto["categorias"]) if producto["categorias"] else "Sin categorías"
-                    print(f"El producto «{producto['nombre']}» tiene SKU Nº {producto['sku']}, {producto['existencias']} existencia(s), precio de ${producto['precio']:.2f} y categorías: {categorias_str}.")
+                    print(f"El producto «{producto['nombre']}» tiene SKU Nº {producto['sku']}, {producto['existencias']} existencia(s), precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
                     return True
                 
             # si no se encuentra, buscar coincidencias similares
@@ -87,10 +114,10 @@ def buscar():
                 if sim >= 0.4 or consulta_norm in normalizar(producto["nombre"]):
                     resultados.append((sim, producto))
             if resultados:
-                print("Producto no encontrado exacto. ¿Quizás quiso decir?:")
+                print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
                 for sim, prod in sorted(resultados, reverse=True):
                     categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                    print(f" → {prod['nombre']} (SKU {prod['sku']}, {prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
+                    print(f" → «{prod['nombre']}», (SKU Nº {prod['sku']}, {prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
                 return False
             else:
                 print("¡Error! Producto no encontrado y sin coincidencias similares.")
@@ -105,10 +132,10 @@ def buscar():
                     q = int(input("Ingrese la cantidad exacta: "))
                     encontrados = [prod for prod in productos if prod["existencias"] == q]
                 elif modo in ("mayor", "2"):
-                    q = int(input("Mostrar productos con cantidad > : "))
+                    q = int(input("Mostrar productos con cantidad >: "))
                     encontrados = [prod for prod in productos if prod["existencias"] > q]
                 elif modo in ("menor", "3"):
-                    q = int(input("Mostrar productos con cantidad < : "))
+                    q = int(input("Mostrar productos con cantidad <: "))
                     encontrados = [prod for prod in productos if prod["existencias"] < q]
                 elif modo in ("rango", "4"):
                     lo = int(input("Ingrese el mínimo del rango: "))
@@ -120,6 +147,7 @@ def buscar():
                     print("¡Error! Opción no válida para cantidad.")
                     return False
             except ValueError:
+                escribir_log("Error al ingresar cantidad en búsqueda.", nivel="ERROR")
                 print("¡Error! Entrada inválida para cantidad.")
                 return False
                 
@@ -127,7 +155,7 @@ def buscar():
                 print("Productos encontrados:")
                 for prod in encontrados:
                     categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                    print(f" → SKU {prod['sku']}: {prod['nombre']} ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
+                    print(f" → SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
                 return True
             else:
                 print("¡Error! No se encontraron productos con esa cantidad.")
@@ -157,6 +185,7 @@ def buscar():
                     print("¡Error! Opción no válida para precio.")
                     return False
             except ValueError:
+                escribir_log("Error al ingresar precio en búsqueda.", nivel="ERROR")
                 print("¡Error! Ingrese un número válido para el precio.")
                 return False
 
@@ -225,11 +254,18 @@ def ingresar():
         # CATEGORÍAS (múltiples tags)
         print("Ingrese las categorías del producto (separadas por comas, o Enter para omitir): ")
         categorias_input = input().strip()
+        
         if categorias_input:
+            # Eliminar espacios, dividir por comas, y quitar elementos vacíos
             categorias = [cat.strip() for cat in categorias_input.split(",") if cat.strip()]
+            # ELIMINAR DUPLICADOS y ORDENAR ALFABÉTICAMENTE
+            # Usar set() para eliminar duplicados y luego sorted() para ordenar
+            categorias = sorted(set(categorias))
+            
+            print(f"Categorías procesadas: {', '.join(categorias)}")
         else:
             categorias = []
-        
+            
         # Crear nuevo producto
         nuevo_producto = {
             "sku": sku,
@@ -254,6 +290,7 @@ def ingresar():
         
     except ValueError:
         print("¡Error! Ingrese valores numéricos válidos para SKU, existencias y precio.")
+        escribir_log("Error al ingresar valores numéricos en ingreso de producto.", nivel="ERROR")
         return False
 
 def modificar():
@@ -281,6 +318,7 @@ def modificar():
                 print("¡Error! SKU no encontrado…")
                 return False
             except ValueError:
+                escribir_log("Error al ingresar SKU en modificación.", nivel="ERROR")
                 print("¡Error! Ingrese un SKU válido.")
                 return False
                 
@@ -317,6 +355,7 @@ def modificar():
                 print("¡Error! SKU no encontrado…")
                 return False
             except ValueError:
+                escribir_log("Error al ingresar SKU en modificación de existencias.", nivel="ERROR")
                 print("¡Error! Ingrese valores numéricos válidos.")
                 return False
                 
@@ -358,6 +397,7 @@ def modificar():
                     
             except ValueError:
                 print("¡Error! Ingrese valores numéricos válidos.")
+                escribir_log("Error al ingresar valores numéricos en modificación de precio.", nivel="ERROR")
                 return False
         
         case "5"|"cinco"|"modificar categorías":
@@ -386,6 +426,7 @@ def modificar():
                 return False
             except ValueError:
                 print("¡Error! Ingrese un SKU válido.")
+                escribir_log("Error al ingresar SKU en modificación de categorías.", nivel="ERROR")
                 return False
                 
         case _:
@@ -416,6 +457,7 @@ def eliminar():
                 print("¡Error! SKU no encontrado…")
                 return False
             except ValueError:
+                escribir_log("Error al ingresar SKU en eliminación.", nivel="ERROR")
                 print("¡Error! Ingrese un SKU válido.")
                 return False
                 
@@ -437,7 +479,7 @@ def eliminar():
             return False
             
         case "3"|"tres"|"eliminar todo":
-            confirmacion = normalizar(input("¿Está seguro que desea eliminar todos los productos? (sí=1/no=0): "))
+            confirmacion = normalizar(input("¿Está seguro que desea eliminar todos los productos? (Sí=1/No=0): "))
             if confirmacion in ["sí", "si", "s", "1"]:
                 data["productos"] = []
                 data["categorias"] = []
@@ -502,7 +544,7 @@ def gestionar_categoria():
                 print("Categoría eliminada correctamente.")
                 return True
             else:
-                print("¡Error! Categoría no encontrada.")
+                print("¡Error! Categoría no encontrada…")
                 return False
                 
         case "4"|"cuatro"|"modificar categoría":
@@ -660,7 +702,7 @@ def gestionar_categoria_modo(modo=None):
                     print("Categoría eliminada correctamente.")
                     return True
                 else:
-                    print("¡Error! Categoría no encontrada.")
+                    print("¡Error! Categoría no encontrada…")
                     return False
                     
             case "4"|"cuatro"|"modificar categoría":
@@ -687,7 +729,7 @@ def gestionar_categoria_modo(modo=None):
                     print("Categoría modificada correctamente.")
                     return True
                 else:
-                    print("¡Error! Categoría no encontrada.")
+                    print("¡Error! Categoría no encontrada…")
                     return False
                     
             case "5"|"cinco"|"volver":

@@ -1,23 +1,9 @@
-
-'''
-mostrar una lista por búsqueda aproximada (filtrar por nombre parcial)
-opción de salir
-Manejar categorías (lácteos, especias... ósea filtrar por tipo de producto)
-Stock mínimo
-Mejorar como se ve la matriz (Sacar corchetes y todo lo demas)
-Matrices traspuestas 
-return adentro de for :'c
-agregar la posibilidad de agregarle subcategorías a las categorías determinado por cliente.
-Agregar una guía (biblia) que explique determiandamente que hace el programa.
-modo de edición, modo de ingreso.
-'''
-
 # programa principal (versión actualizada)
-from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar 
+from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar ,escribir_log
 
 def menu_principal():
     print("""╔══════════════════════════════╗
-║        SISTEMA DE INVENTARIO ║
+║     SISTEMA DE INVENTARIO    ║
 ╠══════════════════════════════╣
 ║ 1. SKU                       ║
 ║ 2. Categorías                ║
@@ -27,36 +13,42 @@ def menu_principal():
 
 def menu_sku():
     print("""╔══════════════════════════════╗
-║           GESTIÓN DE SKU     ║
+║        GESTIÓN DE SKU        ║
 ╠══════════════════════════════╣
 ║ 1. Agregar SKU               ║
 ║ 2. Eliminar SKU              ║
 ║ 3. Modificar SKU             ║
 ║ 4. Volver al menú principal  ║
+║ 5. Salir                     ║
 ╚══════════════════════════════╝""")
 
 def menu_categorias():
     print("""╔══════════════════════════════╗
-║        GESTIÓN DE CATEGORÍAS ║
+║     GESTIÓN DE CATEGORÍAS    ║
 ╠══════════════════════════════╣
 ║ 1. Agregar categoría         ║
 ║ 2. Eliminar categoría        ║
 ║ 3. Modificar categoría       ║
 ║ 4. Ver todas las categorías  ║
 ║ 5. Volver al menú principal  ║
+║ 6. Salir                     ║
 ╚══════════════════════════════╝""")
 
+def exit():
+    print("¡Gracias por usar el sistema!")
+    raise SystemExit
+
 try:
+    escribir_log("Inicio del programa.", nivel="INFO")
     while True:
         menu_principal()
         seleccion = input("Seleccione una opción: ")
-        
+
         match normalizar(seleccion):
             case "1" | "uno" | "sku":
                 while True:
                     menu_sku()
                     opcion_sku = input("Seleccione una opción: ")
-                    
                     match normalizar(opcion_sku):
                         case "1" | "uno" | "agregar" | "agregar sku":
                             ingresar()
@@ -72,6 +64,9 @@ try:
                             
                         case "4" | "cuatro" | "volver" | "menu principal":
                             break
+                        
+                        case "5" | "cinco" | "salir":
+                            exit()
                             
                         case _:
                             print("¡Error! Opción no válida…")
@@ -101,6 +96,10 @@ try:
                             
                         case "5" | "cinco" | "volver" | "menu principal":
                             break
+                        
+                        case "6" | "seis" | "salir":
+                            exit()
+                            
                         case _:
                             print("¡Error! Opción no válida…")
                             input("Presione Enter para continuar...")
@@ -119,7 +118,9 @@ try:
 
 except Exception as e:
     print("¡Error! Ha ocurrido un problema:", e)
+    escribir_log(f"Error inesperado: {e}", nivel="ERROR")
     input("Presione Enter para continuar...")
 
 finally:
+    escribir_log("Fin del programa.", nivel="INFO")
     print("Programa finalizado.")
