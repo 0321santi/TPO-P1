@@ -12,39 +12,38 @@ Agregar una guía (biblia) que explique determiandamente que hace el programa.
 modo de edición, modo de ingreso.
 '''
 
-
 # programa principal (versión actualizada)
-from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar, cargar_memory
+from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar 
 
 def menu_principal():
     print("""╔══════════════════════════════╗
-║        SISTEMA DE INVENTARIO      ║
+║        SISTEMA DE INVENTARIO ║
 ╠══════════════════════════════╣
-║ 1. SKU                        ║
-║ 2. Categorías                 ║
-║ 3. Buscar                     ║
-║ 4. Salir                      ║
+║ 1. SKU                       ║
+║ 2. Categorías                ║
+║ 3. Buscar                    ║
+║ 4. Salir                     ║
 ╚══════════════════════════════╝""")
 
 def menu_sku():
     print("""╔══════════════════════════════╗
-║           GESTIÓN DE SKU         ║
+║           GESTIÓN DE SKU     ║
 ╠══════════════════════════════╣
-║ 1. Agregar SKU                ║
-║ 2. Eliminar SKU               ║
-║ 3. Modificar SKU              ║
-║ 4. Volver al menú principal   ║
+║ 1. Agregar SKU               ║
+║ 2. Eliminar SKU              ║
+║ 3. Modificar SKU             ║
+║ 4. Volver al menú principal  ║
 ╚══════════════════════════════╝""")
 
 def menu_categorias():
     print("""╔══════════════════════════════╗
-║        GESTIÓN DE CATEGORÍAS    ║
+║        GESTIÓN DE CATEGORÍAS ║
 ╠══════════════════════════════╣
-║ 1. Agregar categoría          ║
-║ 2. Eliminar categoría         ║
-║ 3. Modificar categoría        ║
-║ 4. Ver todas las categorías   ║
-║ 5. Volver al menú principal   ║
+║ 1. Agregar categoría         ║
+║ 2. Eliminar categoría        ║
+║ 3. Modificar categoría       ║
+║ 4. Ver todas las categorías  ║
+║ 5. Volver al menú principal  ║
 ╚══════════════════════════════╝""")
 
 try:
@@ -102,7 +101,6 @@ try:
                             
                         case "5" | "cinco" | "volver" | "menu principal":
                             break
-                            
                         case _:
                             print("¡Error! Opción no válida…")
                             input("Presione Enter para continuar...")
@@ -125,9 +123,3 @@ except Exception as e:
 
 finally:
     print("Programa finalizado.")
-
-finally:
-    print("Programa finalizado.")
-
-
-#No hay tabla de todos los productos y categorias (Osea siento que deberia haber un display pero al profe no le gustaba)
