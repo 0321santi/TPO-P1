@@ -6,7 +6,7 @@ def escribir_log(mensaje, nivel="INFO"):
     """Escribe un mensaje en el archivo de log"""
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open('inventario.txt', 'a', encoding='utf-8') as f:
+        with open('loginventario.txt', 'a', encoding='utf-8') as f:
             f.write(f"{timestamp} - {nivel} - {mensaje}\n")
     except Exception as e:
         print(f"Error al escribir en log: {e}")
@@ -737,4 +737,5 @@ def gestionar_categoria_modo(modo=None):
                 
             case _:
                 print("¡Error! Opción no válida…")
+
                 return False
