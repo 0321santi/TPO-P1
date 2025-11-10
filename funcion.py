@@ -63,13 +63,7 @@ def buscar():
     data = cargar_memory()
     productos = data["productos"]
     
-    seleccion = normalizar(input("""Buscar por:
-        1. SKU
-        2. Producto
-        3. Cantidad
-        4. Precio
-        5. Categoría
-    Seleccione una opción: """))
+    seleccion = normalizar(input("Seleccione una opción:" ))
     
     match seleccion:
         case "1"|"uno"|"buscar sku":
@@ -215,6 +209,9 @@ def buscar():
             else:
                 print(f"¡Error! No se encontraron productos en la categoría '{categoria_buscar}'.")
                 return False          
+
+        case "6"|"seis"|"volver al menu principal":
+            return False
 
         case _:
             print("¡Error! Opción no válida…")

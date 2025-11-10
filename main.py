@@ -34,6 +34,17 @@ def menu_categorias():
 ║ 6. Salir                     ║
 ╚══════════════════════════════╝""")
 
+def menu_buscar():
+    print("""╔══════════════════════════════╗
+║           BUSQUEDA           ║
+╠══════════════════════════════╣
+║ 1. SKU                       ║
+║ 2. Producto                  ║
+║ 3. Cantidad                  ║
+║ 4. Precio                    ║
+║ 5. Categoria                 ║
+╚══════════════════════════════╝""")
+
 def exit():
     print("¡Gracias por usar el sistema!")
     raise SystemExit
@@ -105,6 +116,7 @@ try:
                             input("Presione Enter para continuar...")
             
             case "3" | "tres" | "buscar":
+                menu_buscar()
                 buscar()
                 input("Presione Enter para continuar...")
             
