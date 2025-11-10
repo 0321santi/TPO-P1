@@ -62,7 +62,7 @@ def similitud(texto1, texto2):
 def buscar():
     data = cargar_memory()
     productos = data["productos"]
-    
+    encuentro = False
     seleccion = normalizar(input("Seleccione una opción:" ))
     
     match seleccion:
@@ -74,17 +74,17 @@ def buscar():
                     if producto["sku"] == sku:
                         categorias_str = ", ".join(producto["categorias"]) if producto["categorias"] else "Sin categorías"
                         print(f"El SKU Nº {sku} corresponde al producto «{producto['nombre']}», tiene {producto['existencias']} existencia(s), un precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
-                        return True
-                        
-                # Si no se encuentra, busqueda aproximada
-                sugerencias = sorted(productos, key=lambda x: abs(x["sku"] - sku))[:3]
-                if sugerencias:
-                    print("SKU no encontrado. ¿Quizá buscaba alguno de los siguientes?:")
-                    for prod in sugerencias:
-                        categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías."
-                        print(f" → SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
-                else:
-                    print("¡Error! SKU no encontrado…")
+                        encuentro = True
+                if encuentro == False:            
+                    # Si no se encuentra, busqueda aproximada
+                    sugerencias = sorted(productos, key=lambda x: abs(x["sku"] - sku))[:3]
+                    if sugerencias:
+                        print("SKU no encontrado. ¿Quizá buscaba alguno de los siguientes?:")
+                        for prod in sugerencias:
+                            categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías."
+                            print(f" → SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
+                    else:
+                        print("¡Error! SKU no encontrado…")
                 return False
             except ValueError:
                 escribir_log("Error al ingresar SKU en búsqueda.", nivel="ERROR")
@@ -99,23 +99,22 @@ def buscar():
                 if normalizar(producto["nombre"]) == consulta_norm:
                     categorias_str = ", ".join(producto["categorias"]) if producto["categorias"] else "Sin categorías"
                     print(f"El producto «{producto['nombre']}» tiene SKU Nº {producto['sku']}, {producto['existencias']} existencia(s), precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
-                    return True
-                
-            # si no se encuentra, buscar coincidencias similares
-            resultados = []
-            for producto in productos:
-                sim = similitud(consulta_norm, producto["nombre"])
-                if sim >= 0.4 or consulta_norm in normalizar(producto["nombre"]):
-                    resultados.append((sim, producto))
-            if resultados:
-                print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
-                for sim, prod in sorted(resultados, reverse=True):
-                    categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                    print(f" → «{prod['nombre']}», (SKU Nº {prod['sku']}, {prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
-                return False
-            else:
-                print("¡Error! Producto no encontrado y sin coincidencias similares.")
-                return False
+                    encuentro = True
+
+            if encuentro == False: 
+                # si no se encuentra, buscar coincidencias similares
+                resultados = []
+                for producto in productos:
+                    sim = similitud(consulta_norm, producto["nombre"])
+                    if sim >= 0.4 or consulta_norm in normalizar(producto["nombre"]):
+                        resultados.append((sim, producto))
+                if resultados:
+                    print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
+                    for sim, prod in sorted(resultados, reverse=True):
+                        categorias_str = ", ".join(prod["categorias"]) if prod["categorias"] else "Sin categorías"
+                        print(f" → «{prod['nombre']}», (SKU Nº {prod['sku']}, {prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
+                else:
+                    print("¡Error! Producto no encontrado y sin coincidencias similares.")
             
         case "3"|"tres"|"buscar cantidad":
             # Buscar por cantidad: igual / mayor / menor / rango
@@ -207,15 +206,14 @@ def buscar():
                     print(f" → SKU {prod['sku']}: {prod['nombre']} ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
                 return True
             else:
-                print(f"¡Error! No se encontraron productos en la categoría '{categoria_buscar}'.")
-                return False          
+                print(f"¡Error! No se encontraron productos en la categoría '{categoria_buscar}'.")          
 
         case "6"|"seis"|"volver al menu principal":
             return False
 
         case _:
             print("¡Error! Opción no válida…")
-            return False
+    return False
 
 def ingresar():
     data = cargar_memory()

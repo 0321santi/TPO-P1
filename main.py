@@ -54,16 +54,19 @@ try:
     while True:
         menu_principal()
         seleccion = input("Seleccione una opción: ")
+        continuar = 0
 
         match normalizar(seleccion):
             case "1" | "uno" | "sku":
                 while True:
                     menu_sku()
                     opcion_sku = input("Seleccione una opción: ")
+                    continuar = 0
                     match normalizar(opcion_sku):
                         case "1" | "uno" | "agregar" | "agregar sku":
-                            ingresar()
-                            input("Presione Enter para continuar...")
+                            while continuar != -1:
+                                ingresar()
+                                continuar = int(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "2" | "dos" | "eliminar" | "eliminar sku":
                             eliminar()
