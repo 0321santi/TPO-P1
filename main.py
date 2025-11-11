@@ -74,6 +74,7 @@ def menu_buscar():
 ║ 4. Precio                    ║
 ║ 5. Categoria                 ║
 ║ 6. Análisis Financiero       ║
+║ 7. Volver al menú principal  ║
 ╚══════════════════════════════╝""")
 
 def exit():
@@ -117,7 +118,7 @@ try:
                             
                         case _:
                             print("¡Error! Opción no válida…")
-                            input("Presione Enter para continuar...")
+                            
             
             case "2" | "dos" | "categorias" | "categorías":
                 while True:
@@ -154,7 +155,7 @@ try:
                             
                         case _:
                             print("¡Error! Opción no válida…")
-                            input("Presione Enter para continuar...")
+                            
             
             case "3" | "tres" | "clientes":
                 while True:
@@ -182,7 +183,7 @@ try:
                             
                         case _:
                             print("¡Error! Opción no válida…")
-                            input("Presione Enter para continuar...")
+                            
             
             case "4" | "cuatro" | "proveedores":
                 while True:
@@ -213,16 +214,16 @@ try:
                             
                         case _:
                             print("¡Error! Opción no válida…")
-                            input("Presione Enter para continuar...")
+                            
             
             case "5" | "cinco" | "buscar":
                 menu_buscar()
                 buscar()
-                input("Presione Enter para continuar...")
+                
             
             case "6" | "seis" | "analisis" | "análisis" | "financiero":
                 analisis_financiero_completo()
-                input("Presione Enter para continuar...")
+                
             
             case "7" | "siete" | "salir":
                 print("¡Gracias por usar el sistema!")
@@ -230,12 +231,12 @@ try:
             
             case _:
                 print("¡Error! Opción no válida…")
-                input("Presione Enter para continuar...")
+                
 
 except Exception as e:
     print("¡Error! Ha ocurrido un problema:", e)
     escribir_log(f"Error inesperado: {e}", nivel="ERROR")
-    input("Presione Enter para continuar...")
+    
 
 finally:
     escribir_log("Fin del programa.", nivel="INFO")
