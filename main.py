@@ -1,5 +1,7 @@
-# programa principal (versión actualizada)
-from funcion import normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, buscar ,escribir_log
+# programa principal (versión corregida)
+from funcion import (normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo, 
+                    buscar, escribir_log, gestionar_clientes_modo, analisis_financiero_completo,
+                    gestionar_proveedores_modo)
 
 def menu_principal():
     print("""╔══════════════════════════════╗
@@ -7,8 +9,11 @@ def menu_principal():
 ╠══════════════════════════════╣
 ║ 1. SKU                       ║
 ║ 2. Categorías                ║
-║ 3. Buscar                    ║
-║ 4. Salir                     ║
+║ 3. Clientes                  ║
+║ 4. Proveedores               ║
+║ 5. Buscar                    ║
+║ 6. Análisis Financiero       ║
+║ 7. Salir                     ║
 ╚══════════════════════════════╝""")
 
 def menu_sku():
@@ -34,6 +39,31 @@ def menu_categorias():
 ║ 6. Salir                     ║
 ╚══════════════════════════════╝""")
 
+def menu_clientes():
+    print("""╔══════════════════════════════╗
+║      GESTIÓN DE CLIENTES     ║
+╠══════════════════════════════╣
+║ 1. Agregar cliente           ║
+║ 2. Eliminar cliente          ║
+║ 3. Modificar cliente         ║
+║ 4. Buscar/Ver clientes       ║
+║ 5. Volver al menú principal  ║
+║ 6. Salir                     ║
+╚══════════════════════════════╝""")
+
+def menu_proveedores():
+    print("""╔══════════════════════════════╗
+║    GESTIÓN DE PROVEEDORES    ║
+╠══════════════════════════════╣
+║ 1. Agregar proveedor         ║
+║ 2. Eliminar proveedor        ║
+║ 3. Modificar proveedor       ║
+║ 4. Buscar/Ver proveedores    ║
+║ 5. Análisis de proveedores   ║
+║ 6. Volver al menú principal  ║
+║ 7. Salir                     ║
+╚══════════════════════════════╝""")
+
 def menu_buscar():
     print("""╔══════════════════════════════╗
 ║           BUSQUEDA           ║
@@ -43,6 +73,7 @@ def menu_buscar():
 ║ 3. Cantidad                  ║
 ║ 4. Precio                    ║
 ║ 5. Categoria                 ║
+║ 6. Análisis Financiero       ║
 ╚══════════════════════════════╝""")
 
 def exit():
@@ -64,18 +95,20 @@ try:
                     continuar = 0
                     match normalizar(opcion_sku):
                         case "1" | "uno" | "agregar" | "agregar sku":
-                            while continuar != -1:
+                            while continuar not in ("no","-1" ):
                                 ingresar()
-                                continuar = int(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "2" | "dos" | "eliminar" | "eliminar sku":
-                            eliminar()
-                            input("Presione Enter para continuar...")
-                            
+                            while continuar not in ("no","-1" ):
+                                eliminar()
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))                            
+                        
                         case "3" | "tres" | "modificar" | "modificar sku":
-                            modificar()
-                            input("Presione Enter para continuar...")
-                            
+                            while continuar not in ("no","-1" ):
+                                modificar()
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
+                                
                         case "4" | "cuatro" | "volver" | "menu principal":
                             break
                         
@@ -90,23 +123,28 @@ try:
                 while True:
                     menu_categorias()
                     opcion_cat = input("Seleccione una opción: ")
+                    continuar = 0
                     
                     match normalizar(opcion_cat):
                         case "1" | "uno" | "agregar" | "agregar categoría":
-                            gestionar_categoria_modo("agregar")
-                            input("Presione Enter para continuar...")
+                            while continuar not in ("no","-1" ):
+                                gestionar_categoria_modo("agregar")
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "2" | "dos" | "eliminar" | "eliminar categoría":
-                            gestionar_categoria_modo("eliminar")
-                            input("Presione Enter para continuar...")
+                            while continuar not in ("no","-1" ):
+                                gestionar_categoria_modo("eliminar")
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "3" | "tres" | "modificar" | "modificar categoría":
-                            gestionar_categoria_modo("modificar")
-                            input("Presione Enter para continuar...")
+                            while continuar not in ("no","-1" ):
+                                gestionar_categoria_modo("modificar")
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "4" | "cuatro" | "ver" | "ver categorías":
-                            gestionar_categoria_modo("ver")
-                            input("Presione Enter para continuar...")
+                            while continuar not in ("no","-1" ):
+                                gestionar_categoria_modo("ver")
+                                continuar = normalizar(input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
                             
                         case "5" | "cinco" | "volver" | "menu principal":
                             break
@@ -118,12 +156,75 @@ try:
                             print("¡Error! Opción no válida…")
                             input("Presione Enter para continuar...")
             
-            case "3" | "tres" | "buscar":
+            case "3" | "tres" | "clientes":
+                while True:
+                    menu_clientes()
+                    opcion_cli = input("Seleccione una opción: ")
+                    
+                    match normalizar(opcion_cli):
+                        case "1" | "uno" | "agregar" | "agregar cliente":
+                            gestionar_clientes_modo("agregar")
+                            
+                        case "2" | "dos" | "eliminar" | "eliminar cliente":
+                            gestionar_clientes_modo("eliminar")
+                            
+                        case "3" | "tres" | "modificar" | "modificar cliente":
+                            gestionar_clientes_modo("modificar")
+                            
+                        case "4" | "cuatro" | "buscar" | "ver" | "buscar clientes":
+                            gestionar_clientes_modo("buscar")
+                            
+                        case "5" | "cinco" | "volver" | "menu principal":
+                            break
+                        
+                        case "6" | "seis" | "salir":
+                            exit()
+                            
+                        case _:
+                            print("¡Error! Opción no válida…")
+                            input("Presione Enter para continuar...")
+            
+            case "4" | "cuatro" | "proveedores":
+                while True:
+                    menu_proveedores()
+                    opcion_prov = input("Seleccione una opción: ")
+                    
+                    match normalizar(opcion_prov):
+                        case "1" | "uno" | "agregar" | "agregar proveedor":
+                            gestionar_proveedores_modo("agregar")
+                            
+                        case "2" | "dos" | "eliminar" | "eliminar proveedor":
+                            gestionar_proveedores_modo("eliminar")
+                            
+                        case "3" | "tres" | "modificar" | "modificar proveedor":
+                            gestionar_proveedores_modo("modificar")
+                            
+                        case "4" | "cuatro" | "buscar" | "ver" | "buscar proveedores":
+                            gestionar_proveedores_modo("buscar")
+                            
+                        case "5" | "cinco" | "analizar" | "análisis":
+                            gestionar_proveedores_modo("analizar")
+                            
+                        case "6" | "seis" | "volver" | "menu principal":
+                            break
+                        
+                        case "7" | "siete" | "salir":
+                            exit()
+                            
+                        case _:
+                            print("¡Error! Opción no válida…")
+                            input("Presione Enter para continuar...")
+            
+            case "5" | "cinco" | "buscar":
                 menu_buscar()
                 buscar()
                 input("Presione Enter para continuar...")
             
-            case "4" | "cuatro" | "salir":
+            case "6" | "seis" | "analisis" | "análisis" | "financiero":
+                analisis_financiero_completo()
+                input("Presione Enter para continuar...")
+            
+            case "7" | "siete" | "salir":
                 print("¡Gracias por usar el sistema!")
                 break
             
