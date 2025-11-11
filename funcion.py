@@ -138,77 +138,95 @@ def ingresar():
     """Función para agregar un nuevo producto al inventario"""
     data = cargar_memory()
     productos = data["productos"]
-    coincidencia = False
 
     try:
         # SKU único
         sku = int(input("Ingrese el SKU: "))
         for producto in productos:
-            if producto["sku"] == sku:
-                print("Error! El SKU ya existe...")
-                coincidencia = True
+            while producto["sku"] == sku and sku <= 0 and sku != -1:
+                print("Error! El SKU ya existe o invalido...")
+                sku = int(input("Ingrese el SKU: "))
+            
+        if sku == -1:
+            return False
 
-        if coincidencia == False:       
-            # EXISTENCIAS validas
-            existencias = int(input("Ingrese las existencias: "))
-            while existencias <= 0:
-                existencias = int(input("Error! Ingrese un numero valido...: "))
+        # NOMBRE del producto
+        nombre = input("Ingrese el nombre del producto: ")
+
+        # Verificar nombre único
+        for producto in productos:
+            while normalizar(producto["nombre"]) == normalizar(nombre):
+                print("Error! El nombre ya esta en uso...")
+                nombre = input("Ingrese el nombre del producto: ")
+
+        if nombre in ("-1","salir"):
+            return False
+
+        # EXISTENCIAS validas
+        existencias = int(input("Ingrese las existencias: "))
+        while existencias <= 0 and existencias != -1:
+            existencias = int(input("Error! Ingrese un numero valido...: "))
+
+        if existencias == -1:
+            return False
+
+        # PRECIO válido
+        precio_compra = float(input("Ingrese el precio de COMPRA del producto: "))
+        while precio_compra <= 0 and precio_compra != -1:
+            precio_compra = float(input("Error! Ingrese un numero valido...: "))
+        
+        if precio_compra == -1:
+            return False
             
-            # NOMBRE del producto
-            nombre = input("Ingrese el nombre del producto: ")
+        precio_venta = float(input("Ingrese el precio de VENTA del producto: "))
+        while precio_venta <= 0 and precio_venta != -1:
+            precio_venta = float(input("Error! Ingrese un numero valido...: "))
+        
+        if precio_venta == -1:
+            return False
+
+        # CATEGORÍAS (múltiples tags)
+        print("Ingrese las categorías del producto (separadas por comas, o Enter para omitir): ")
+        categorias_input = input()
+
+        if categorias_input in("-1","salir"):
+            return False
+        
+        categorias_input = categorias_input.strip()
+
+        if categorias_input:
+            # Eliminar espacios, dividir por comas, y quitar elementos vacíos
+            categorias = [cat.strip() for cat in categorias_input.split(",") if cat.strip()]
+            # ELIMINAR DUPLICADOS y ORDENAR ALFABÉTICAMENTE
+            categorias = sorted(set(categorias))
             
-            # Verificar nombre único
-            for producto in productos:
-                if normalizar(producto["nombre"]) == normalizar(nombre):
-                    print("Error! El nombre ya esta en uso...")
-                    coincidencia = True
-            if coincidencia == False:
-                # PRECIO válido
-                precio_compra = float(input("Ingrese el precio de COMPRA del producto: "))
-                while precio_compra <= 0:
-                    precio_compra = float(input("Error! Ingrese un numero valido...: "))
-                    
-                precio_venta = float(input("Ingrese el precio de VENTA del producto: "))
-                while precio_venta <= 0:
-                    precio_venta = float(input("Error! Ingrese un numero valido...: "))
-                
-                # CATEGORÍAS (múltiples tags)
-                print("Ingrese las categorías del producto (separadas por comas, o Enter para omitir): ")
-                categorias_input = input().strip()
-                
-                if categorias_input:
-                    # Eliminar espacios, dividir por comas, y quitar elementos vacíos
-                    categorias = [cat.strip() for cat in categorias_input.split(",") if cat.strip()]
-                    # ELIMINAR DUPLICADOS y ORDENAR ALFABÉTICAMENTE
-                    categorias = sorted(set(categorias))
-                    
-                    print(f"Categorías procesadas: {', '.join(categorias)}")
-                else:
-                    categorias = []
-                    
-                # Crear nuevo producto
-                nuevo_producto = {
-                    "sku": sku,
-                    "nombre": nombre,
-                    "existencias": existencias,
-                    "precio compra": precio_compra,
-                    "precio venta": precio_venta,
-                    "categorias": categorias
-                }
-                
-                # Agregar a la lista de productos
-                productos.append(nuevo_producto)
-                
-                # Actualizar lista global de categorías
-                for categoria in categorias:
-                    if categoria not in data["categorias"]:
-                        data["categorias"].append(categoria)
-                
-                # Guardar en el archivo
-                guardar_memory(data)
-                print("Producto ingresado correctamente.")
-                escribir_log(f"Producto agregado: {nombre} (SKU: {sku})", nivel="INFO")
-                return True
+            print(f"Categorías procesadas: {', '.join(categorias)}")
+        else:
+            categorias = []
+            
+        # Crear nuevo producto
+        nuevo_producto = {
+            "sku": sku,
+            "nombre": nombre,
+            "existencias": existencias,
+            "precio compra": precio_compra,
+            "precio venta": precio_venta,
+            "categorias": categorias
+        }
+        
+        # Agregar a la lista de productos
+        productos.append(nuevo_producto)
+        
+        # Actualizar lista global de categorías
+        for categoria in categorias:
+            if categoria not in data["categorias"]:
+                data["categorias"].append(categoria)
+        
+        # Guardar en el archivo
+        guardar_memory(data)
+        print("Producto ingresado correctamente.")
+        escribir_log(f"Producto agregado: {nombre} (SKU: {sku})", nivel="INFO")
+        return True
         
     except ValueError:
         print("Error! Ingrese valores numéricos válidos para SKU, existencias y precio.")
