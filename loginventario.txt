@@ -1,1 +1,19 @@
-
+2025-11-11 20:02:36 - INFO - Inicio del programa.
+2025-11-11 21:09:19 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 21:10:40 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 21:11:10 - INFO - Fin del programa.
+2025-11-11 21:11:15 - INFO - Inicio del programa.
+2025-11-11 21:12:26 - INFO - Inicio del programa.
+2025-11-11 21:12:38 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 21:14:11 - INFO - Inicio del programa.
+2025-11-11 22:24:03 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:24:10 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:24:11 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:24:12 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:24:18 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:24:24 - INFO - Fin del programa.
+2025-11-11 22:24:31 - INFO - Inicio del programa.
+2025-11-11 22:25:48 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
+2025-11-11 22:27:34 - INFO - Fin del programa.
+2025-11-11 22:27:46 - INFO - Inicio del programa.
+2025-11-11 22:29:16 - INFO - Inicio del programa.
