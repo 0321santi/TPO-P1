@@ -1,0 +1,3 @@
+productos:data/productos.json
+categorias:data/categorias.json
+configuracion:data/configuracion.json
