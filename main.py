@@ -2,122 +2,146 @@ from funcion import (
     normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo,
     buscar, escribir_log, verificar_umbral_minimo, configurar_umbral_minimo,
     mostrar_valor_total, producto_mas_barato, producto_mas_caro, promedio_precios,
-    existencias_sin_stock, productos_por_categoria, distribucion_precios, formatear_base_datos,
+    existencias_sin_stock, productos_por_categoria, distribucion_precios,
+    version_genzalostorage, formatear_base_datos,
     cargar_memory, ingresar_paquete, configurar_umbral_maximo,
-    verificar_sobre_almacenamiento, gestionar_vencimientos,
-    configurar_alerta_vencimiento, verificar_alertas_vencimiento,
-    ver_todas_alertas_vencimiento, verificar_vencidos, ver_productos_no_perecederos
+    verificar_sobre_almacenamiento, verificar_vencimientos_proximos,
+    configurar_alerta_vencimiento, verificar_vencidos, ver_productos_no_perecederos,
+    verificar_alertas_vencimiento, ver_todas_alertas_vencimiento, ver_todos_lotes,
+    buscar_por_lote, configurar_metodo_salida, ver_proximo_vencer_lotes, generador_de_sku,
+    gestionar_clientes_modo, gestionar_proveedores_modo, analisis_financiero_completo
 )
 
 
+class Colores:
+    NEGRITA = "\033[1m"
+    NEUTRO = "\033[0m"
+    ROJO = "\033[91m"
+    VERDE = "\033[92m"
+    AMARILLO = "\033[93m"
+    AZUL = "\033[94m"
+    MAGENTA = "\033[95m"
+    CIAN = "\033[96m"
+    BLANCO = "\033[97m"
+    GRIS = "\033[90m"
+    NARANJA = "\033[38;5;214m"
+    ROSA = "\033[38;5;219m"
+    BEIGE = "\033[38;5;223m"
+
+
 def menu_principal():
-    print("""╔══════════════════════════════╗
-║     SISTEMA DE INVENTARIO    ║
+    print(f"""╔══════════════════════════════╗
+║     {Colores.NEGRITA}SISTEMA DE INVENTARIO{Colores.NEUTRO}    ║
 ╠══════════════════════════════╣
-║ 1. SKU                       ║
-║ 2. Categorías                ║
-║ 3. Buscar                    ║
-║ 4. Umbrales                  ║
-║ 5. Formatear base de datos   ║
-║ 6. Salir                     ║
+║ {Colores.AZUL}1. SKU{Colores.NEUTRO}                       ║
+║ {Colores.ROJO}2. Categorías{Colores.NEUTRO}                ║
+║ {Colores.CIAN}3. Buscar{Colores.NEUTRO}                    ║
+║ {Colores.AMARILLO}4. Umbrales{Colores.NEUTRO}                  ║
+║ {Colores.MAGENTA}5. Lotes{Colores.NEUTRO}                     ║
+║ {Colores.VERDE}6. Vencimientos{Colores.NEUTRO}              ║
+║ {Colores.BEIGE}7. Otras opciones{Colores.NEUTRO}            ║
+║ 8. Salir                     ║
 ╚══════════════════════════════╝""")
 
 
 def menu_sku():
-    print("""╔══════════════════════════════╗
-║        GESTIÓN DE SKU        ║
+    print(f"""{Colores.AZUL}╔══════════════════════════════╗
+║        {Colores.NEGRITA}GESTIÓN DE SKU{Colores.NEUTRO}{Colores.AZUL}        ║
 ╠══════════════════════════════╣
 ║ 1. Agregar SKU               ║
 ║ 2. Agregar SKU por paquete   ║
 ║ 3. Eliminar SKU              ║
 ║ 4. Modificar SKU             ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ {Colores.NEUTRO}5. Volver al menú principal{Colores.AZUL}  ║
+║ {Colores.NEUTRO}6. Salir{Colores.AZUL}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_categorias():
-    print("""╔══════════════════════════════╗
-║     GESTIÓN DE CATEGORÍAS    ║
+    print(f"""{Colores.ROJO}╔══════════════════════════════╗
+║     {Colores.NEGRITA}GESTIÓN DE CATEGORÍAS{Colores.NEUTRO}{Colores.ROJO}    ║
 ╠══════════════════════════════╣
 ║ 1. Agregar categoría         ║
 ║ 2. Eliminar categoría        ║
 ║ 3. Modificar categoría       ║
 ║ 4. Ver todas las categorías  ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ {Colores.NEUTRO}5. Volver al menú principal{Colores.ROJO}  ║
+║ {Colores.NEUTRO}6. Salir{Colores.ROJO}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_buscar():
-    print("""╔══════════════════════════════╗
-║           BUSQUEDA           ║
+    print(f"""{Colores.CIAN}╔══════════════════════════════╗
+║           {Colores.NEGRITA}BUSQUEDA{Colores.NEUTRO}{Colores.CIAN}           ║
 ╠══════════════════════════════╣
 ║ 1. SKU                       ║
 ║ 2. Producto                  ║
 ║ 3. Cantidad                  ║
 ║ 4. Precio                    ║
 ║ 5. Categoria                 ║
-║ 6. Volver al menú principal  ║
-║ 7. Salir                     ║
-╚══════════════════════════════╝""")
+║ {Colores.NEUTRO}6. Volver al menú principal{Colores.CIAN}  ║
+║ {Colores.NEUTRO}7. Salir{Colores.CIAN}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_umbral():
-    print("""╔══════════════════════════════╗
-║      GESTIÓN DE UMBRALES     ║
+    print(f"""{Colores.AMARILLO}╔══════════════════════════════╗
+║      {Colores.NEGRITA}GESTIÓN DE UMBRALES{Colores.NEUTRO}{Colores.AMARILLO}     ║
 ╠══════════════════════════════╣
 ║ 1. Ver alertas de inventario ║
 ║ 2. Configurar umbral mínimo  ║
 ║ 3. Configurar umbral máximo  ║
 ║ 4. Ver sobre almacenamiento  ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ {Colores.NEUTRO}5. Volver al menú principal{Colores.AMARILLO}  ║
+║ {Colores.NEUTRO}6. Salir{Colores.AMARILLO}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_otros():
-    print("""╔══════════════════════════════╗
-║       OTRAS OPCIONES         ║
+    print(f"""{Colores.BEIGE}╔══════════════════════════════╗
+║       {Colores.NEGRITA}OTRAS OPCIONES{Colores.NEUTRO}{Colores.BEIGE}         ║
 ╠══════════════════════════════╣
 ║ 1. Valores                   ║
 ║ 2. Existencias               ║
 ║ 3. Estadísticas              ║
-║ 4. Vencimientos              ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ 4. Clientes                  ║
+║ 5. Proveedores               ║
+║ 6. Otros                     ║
+║ 7. Volver al menú principal  ║
+║ 8. Salir                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_vencimientos():
-    print("""╔══════════════════════════════╗
-║        VENCIMIENTOS          ║
+    print(f"""{Colores.VERDE}╔══════════════════════════════╗
+║        {Colores.NEGRITA}VENCIMIENTOS{Colores.NEUTRO}{Colores.VERDE}          ║
 ╠══════════════════════════════╣
 ║ 1. Ver productos próximos    ║
 ║ 2. Configurar alertas        ║
 ║ 3. Ver productos vencidos    ║
 ║ 4. Ver no perecederos        ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ {Colores.NEUTRO}5. Volver al menú principal{Colores.VERDE}  ║
+║ {Colores.NEUTRO}6. Salir{Colores.VERDE}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_valores():
-    print("""╔══════════════════════════════╗
-║           VALORES            ║
+    print(f"""╔══════════════════════════════╗
+║           {Colores.NEGRITA}VALORES{Colores.NEUTRO}            ║
 ╠══════════════════════════════╣
 ║ 1. Valor total               ║
 ║ 2. Producto más barato       ║
 ║ 3. Producto más caro         ║
 ║ 4. Promedio de precios       ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir del programa        ║
-╚══════════════════════════════╝""")
+║ 5. Análisis financiero       ║
+║ 6. Volver al menú principal  ║
+║ 7. Salir del programa        ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_existencias():
-    print("""╔══════════════════════════════╗
-║         EXISTENCIAS          ║
+    print(f"""╔══════════════════════════════╗
+║         {Colores.NEGRITA}EXISTENCIAS{Colores.NEUTRO}          ║
 ╠══════════════════════════════╣
 ║ 1. Sin existencias           ║
 ║ 2. Existencias muy bajas     ║
@@ -127,18 +151,69 @@ def menu_existencias():
 ║ 6. Sobre almacenamiento      ║
 ║ 7. Volver al menú principal  ║
 ║ 8. Salir del programa        ║
-╚══════════════════════════════╝""")
+╚══════════════════════════════╝{Colores.NEUTRO}""")
 
 
 def menu_estadisticas():
-    print("""╔══════════════════════════════╗
-║         ESTADÍSTICAS         ║
+    print(f"""╔══════════════════════════════╗
+║         {Colores.NEGRITA}ESTADÍSTICAS{Colores.NEUTRO}         ║
 ╠══════════════════════════════╣
 ║ 1. Resumen general           ║
 ║ 2. Productos por categoría   ║
 ║ 3. Distribución de precios   ║
-║ 4. Volver al menú principal  ║
+║ 4. Volver al menú anterior   ║
 ║ 5. Salir del programa        ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
+
+
+def menu_lotes():
+    print(f"""{Colores.MAGENTA}╔══════════════════════════════╗
+║        {Colores.NEGRITA}GESTIÓN DE LOTES{Colores.NEUTRO}{Colores.MAGENTA}      ║
+╠══════════════════════════════╣
+║ 1. Ver todos los lotes       ║
+║ 2. Buscar por lote           ║
+║ 3. Configurar método salida  ║
+║ 4. Ver próximo a vencer      ║
+║ {Colores.NEUTRO}5. Volver al menú principal{Colores.MAGENTA}  ║
+║ {Colores.NEUTRO}6. Salir{Colores.MAGENTA}                     ║
+╚══════════════════════════════╝{Colores.NEUTRO}""")
+
+
+def menu_otros_sub():
+    print("""╔══════════════════════════════╗
+║           OTROS              ║
+╠══════════════════════════════╣
+║ 1. Versión genzaloSTORAGE    ║
+║ 2. Formatear base de datos   ║
+║ 3. Volver al menú anterior   ║
+║ 4. Salir del programa        ║
+╚══════════════════════════════╝""")
+
+
+def menu_clientes():
+    print("""╔══════════════════════════════╗
+║      GESTIÓN DE CLIENTES     ║
+╠══════════════════════════════╣
+║ 1. Agregar cliente           ║
+║ 2. Eliminar cliente          ║
+║ 3. Modificar cliente         ║
+║ 4. Buscar cliente            ║
+║ 5. Volver al menú anterior   ║
+║ 6. Salir                     ║
+╚══════════════════════════════╝""")
+
+
+def menu_proveedores():
+    print("""╔══════════════════════════════╗
+║    GESTIÓN DE PROVEEDORES    ║
+╠══════════════════════════════╣
+║ 1. Agregar proveedor         ║
+║ 2. Eliminar proveedor        ║
+║ 3. Modificar proveedor       ║
+║ 4. Buscar proveedor          ║
+║ 5. Análisis de proveedores   ║
+║ 6. Volver al menú anterior   ║
+║ 7. Salir                     ║
 ╚══════════════════════════════╝""")
 
 
@@ -260,7 +335,71 @@ try:
                             print("¡Error! Opción no válida.")
                             input("Presione Intro para continuar.")
 
-            case "5" | "cinco" | "otras opciones" | "otros":
+            case "5" | "cinco" | "lotes":
+                while True:
+                    menu_lotes()
+                    opcion_lotes = input("Seleccione una opción: ")
+
+                    match normalizar(opcion_lotes):
+                        case "1" | "uno" | "ver lotes":
+                            ver_todos_lotes()
+                            input("Presione Intro para continuar.")
+
+                        case "2" | "dos" | "buscar lote":
+                            buscar_por_lote()
+                            input("Presione Intro para continuar.")
+
+                        case "3" | "tres" | "configurar metodo":
+                            configurar_metodo_salida()
+                            input("Presione Intro para continuar.")
+
+                        case "4" | "cuatro" | "proximo vencer":
+                            ver_proximo_vencer_lotes()
+                            input("Presione Intro para continuar.")
+
+                        case "5" | "cinco" | "volver":
+                            break
+
+                        case "6" | "seis" | "salir":
+                            exit_program()
+
+                        case _:
+                            print("¡Error! Opción no válida.")
+                            input("Presione Intro para continuar.")
+
+            case "6" | "seis" | "vencimientos":
+                while True:
+                    menu_vencimientos()
+                    opcion_venc = input("Seleccione una opción: ")
+
+                    match normalizar(opcion_venc):
+                        case "1" | "uno" | "ver alertas":
+                            verificar_vencimientos_proximos()
+                            input("Presione Intro para continuar.")
+
+                        case "2" | "dos" | "configurar alerta":
+                            configurar_alerta_vencimiento()
+                            input("Presione Intro para continuar.")
+
+                        case "3" | "tres" | "ver vencidos":
+                            verificar_vencidos()
+                            input("Presione Intro para continuar.")
+
+                        case "4" | "cuatro" | "no perecederos":
+                            ver_productos_no_perecederos()
+                            input("Presione Intro para continuar.")
+
+                        case "5" | "cinco" | "volver":
+                            break
+
+                        case "6" | "seis" | "salir":
+                            exit_program()
+
+                        case _:
+                            print("¡Error! Opción no válida.")
+                            input("Presione Intro para continuar.")
+
+            case "7" | "siete" | "otras opciones" | "otros":
                 while True:
                     menu_otros()
                     opcion_otros = input("Seleccione una opción: ")
@@ -289,10 +428,14 @@ try:
                                         promedio_precios()
                                         input("Presione Intro para continuar.")
 
-                                    case "5" | "cinco" | "volver":
+                                    case "5" | "cinco" | "analisis financiero":
+                                        analisis_financiero_completo()
+                                        input("Presione Intro para continuar.")
+
+                                    case "6" | "seis" | "volver":
                                         break
 
-                                    case "6" | "seis" | "salir":
+                                    case "7" | "siete" | "salir":
                                         exit_program()
 
                                     case _:
@@ -443,18 +586,119 @@ try:
                                         print("¡Error! Opción no válida.")
                                         input("Presione Intro para continuar.")
 
-                        case "4" | "cuatro" | "vencimientos":
-                            gestionar_vencimientos()
+                        case "4" | "cuatro" | "clientes":
+                            while True:
+                                menu_clientes()
+                                opcion_clientes = input(
+                                    "Seleccione una opción: ")
 
-                        case "5" | "cinco" | "otros sub":
-                            formatear_base_datos()
-                            input("Presione Intro para continuar.")
+                                match normalizar(opcion_clientes):
+                                    case "1" | "uno" | "agregar":
+                                        from funcion import ingresar_cliente
+                                        ingresar_cliente()
+                                        input("Presione Intro para continuar.")
 
-                        case "6" | "seis" | "volver":
+                                    case "2" | "dos" | "eliminar":
+                                        from funcion import eliminar_cliente
+                                        eliminar_cliente()
+                                        input("Presione Intro para continuar.")
+
+                                    case "3" | "tres" | "modificar":
+                                        from funcion import modificar_cliente
+                                        modificar_cliente()
+                                        input("Presione Intro para continuar.")
+
+                                    case "4" | "cuatro" | "buscar":
+                                        from funcion import buscar_cliente
+                                        buscar_cliente()
+                                        input("Presione Intro para continuar.")
+
+                                    case "5" | "cinco" | "volver":
+                                        break
+
+                                    case "6" | "seis" | "salir":
+                                        exit_program()
+
+                                    case _:
+                                        print("¡Error! Opción no válida.")
+                                        input("Presione Intro para continuar.")
+
+                        case "5" | "cinco" | "proveedores":
+                            while True:
+                                menu_proveedores()
+                                opcion_proveedores = input(
+                                    "Seleccione una opción: ")
+
+                                match normalizar(opcion_proveedores):
+                                    case "1" | "uno" | "agregar":
+                                        from funcion import ingresar_proveedor
+                                        ingresar_proveedor()
+                                        input("Presione Intro para continuar.")
+
+                                    case "2" | "dos" | "eliminar":
+                                        from funcion import eliminar_proveedor
+                                        eliminar_proveedor()
+                                        input("Presione Intro para continuar.")
+
+                                    case "3" | "tres" | "modificar":
+                                        from funcion import modificar_proveedor
+                                        modificar_proveedor()
+                                        input("Presione Intro para continuar.")
+
+                                    case "4" | "cuatro" | "buscar":
+                                        from funcion import buscar_proveedor
+                                        buscar_proveedor()
+                                        input("Presione Intro para continuar.")
+
+                                    case "5" | "cinco" | "analizar":
+                                        from funcion import analizar_proveedores
+                                        analizar_proveedores()
+                                        input("Presione Intro para continuar.")
+
+                                    case "6" | "seis" | "volver":
+                                        break
+
+                                    case "7" | "siete" | "salir":
+                                        exit_program()
+
+                                    case _:
+                                        print("¡Error! Opción no válida.")
+                                        input("Presione Intro para continuar.")
+
+                        case "6" | "seis" | "otros sub":
+                            while True:
+                                menu_otros_sub()
+                                opcion_otros_sub = input(
+                                    "Seleccione una opción: ")
+
+                                match normalizar(opcion_otros_sub):
+
+                                    case "1" | "uno" | "version":
+                                        version_genzalostorage()
+                                        input("Presione Intro para continuar.")
+
+                                    case "2" | "dos" | "formatear":
+                                        formatear_base_datos()
+                                        input("Presione Intro para continuar.")
+
+                                    case "3" | "tres" | "volver":
+                                        break
+
+                                    case "4" | "cuatro" | "salir":
+                                        exit_program()
+
+                                    case _:
+                                        print("¡Error! Opción no válida.")
+                                        input("Presione Intro para continuar.")
+
+                        case "7" | "siete" | "volver":
                             break
 
-            case "6" | "seis" | "salir":
-                break
+                        case "8" | "ocho" | "salir":
+                            exit_program()
+
+            case "8" | "ocho" | "salir":
+                exit_program()
 
             case _:
                 print("¡Error! Opción no válida.")
