@@ -17,56 +17,39 @@ def cargar_memory():
     try:
         f = open('memoria.txt', 'rt', encoding='UTF8')
     except FileNotFoundError:
-        print("Error: archivo corrupto.")
+        print("Error: archivo de productos no encontrado.")
         print("Creando un nuevo archivo...")
-        categorias = {"id": "cat", "categorias": []}
-        guardar_memory(categorias)
+        f = open('memoria.txt', 'at', encoding = 'UTF8')
     else:
         f.close()
     finally:
         return
+
 
 def guardar_memory(data):
-    try:
-        f = open('memoria.txt', 'at', encoding='UTF8')
-        f.write(json.dumps(data) + '\n')
-    except FileNotFoundError:
-        print("Error")
-    else:
-        f.close()
-    finally:
-        return
+    f = open('memoria.txt', 'at', encoding='UTF8')
+    f.write(json.dumps(data) + '\n')
+    f.close()
 
 def guardar_categorias(cats):
+    f = open('categorias.txt', 'at', encoding='UTF8')
+    for i in range(len(cats)):
+        f.write(f"{cats[i]}\n")
+    f.close()
+
+def leer_categorias(cats):
     try:
-        cat = leer_categorias()
-        d = cat.get("categorias")
+        f = open('categorias.txt', 'rt', encoding='UTF8')
         for i in cats:
-            if i not in d:
-                d.append(i)
-            
-    except FileNotFoundError:
-        print("Error")
-        pass
-    else:
-        print("")
-    finally:
-        print("")
-    return
-
-def leer_categorias():
-    try:
-        f = open('memoria.txt', "rt", encoding='UTF8')
-        cat = json.loads(f.readline())
-    except FileNotFoundError:
-        print("Error")
-    else:
-        f.close()
-    finally:
-        pass
-    return cat
-    
-
+            for j in f:
+                if cats[i] == j:
+                    cats.pop(i)
+    except FileNotFoundError as e:
+        print(f"Error {e}")
+        print("creando nuevo archivo...")
+        f = open('categorias.txt', 'at', encoding='UTF8')
+    f.close()
+    return cats
 
 def comprobar(tag_nuevo):
     try:
@@ -286,10 +269,6 @@ def buscar():
 
 
 def ingresar():
-    """     
-    data = cargar_memory()
-    productos = data["productos"]
-    """
     try:
         print("Generación de SKU:")
         print("1. Automático")
@@ -413,6 +392,7 @@ def ingresar():
         } """
 
         guardar_memory(nuevo_producto)
+        guardar_categorias(leer_categorias(categorias))
         print("Producto ingresado correctamente.")
 
         if existencias <= umbral_minimo and umbral_minimo > 0:
@@ -625,11 +605,7 @@ def ingresar_paquete():
     finally:
         escribir_log("Función ingresar_paquete finalizada", nivel="INFO")
 
-
 def modificar():
-    data = cargar_memory()
-    productos = data["productos"]
-
     seleccion2 = normalizar(input(
         "Modificar SKU (1), Producto (2), Existencias (3), Precio (4), Categorías (5): "))
     match seleccion2:
@@ -637,6 +613,9 @@ def modificar():
         case "1" | "uno" | "modificar sku":
             try:
                 sku_actual = int(input("Ingrese el SKU a modificar: "))
+                comprobar(sku_actual)
+                while comprobar(sku_actual) == False:
+                    print("Elija un producto: ")
                 for producto in productos:
                     if producto["sku"] == sku_actual:
                         print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
