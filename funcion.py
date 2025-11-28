@@ -10,47 +10,76 @@ def escribir_log(mensaje, nivel="INFO"):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open('loginventario.txt', 'a', encoding='utf-8') as f:
             f.write(f"{timestamp} - {nivel} - {mensaje}\n")
-    except Exception as e:
+    except FileNotFoundError as e:
         print(f"¡Error! No se puedo escribir en el log.: {e}")
-
 
 def cargar_memory():
     try:
-        with open('memory.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if "clientes" not in data:
-                data["clientes"] = []
-            if "proveedores" not in data:
-                data["proveedores"] = []
-            if "productos" not in data or "categorias" not in data:
-                raise ValueError("Estructura de archivo inválida")
-            return data
-    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-        data = {
-            "productos": [],
-            "categorias": [],
-            "clientes": [],
-            "proveedores": []
-        }
-        guardar_memory(data)
-
-        if isinstance(e, FileNotFoundError):
-            escribir_log(
-                "Advertencia! memory.json no encontrado. Se generó un nuevo archivo.", nivel="WARNING")
-        elif isinstance(e, json.JSONDecodeError):
-            escribir_log(
-                "Error! Problemas de decodificación JSON. Se reinició el archivo.", nivel="ERROR")
-        else:
-            escribir_log(
-                f"Error! No se pudo cargar memory.json: {e}", nivel="ERROR")
-
-        return data
-
+        f = open('memoria.txt', 'rt', encoding='UTF8')
+    except FileNotFoundError:
+        print("Error: archivo corrupto.")
+        print("Creando un nuevo archivo...")
+        categorias = {"id": "cat", "categorias": []}
+        guardar_memory(categorias)
+    else:
+        f.close()
+    finally:
+        return
 
 def guardar_memory(data):
-    with open('memory.json', 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    try:
+        f = open('memoria.txt', 'at', encoding='UTF8')
+        f.write(json.dumps(data) + '\n')
+    except FileNotFoundError:
+        print("Error")
+    else:
+        f.close()
+    finally:
+        return
 
+def guardar_categorias(cats):
+    try:
+        cat = leer_categorias()
+        d = cat.get("categorias")
+        for i in cats:
+            if i not in d:
+                d.append(i)
+            
+    except FileNotFoundError:
+        print("Error")
+        pass
+    else:
+        print("")
+    finally:
+        print("")
+    return
+
+def leer_categorias():
+    try:
+        f = open('memoria.txt', "rt", encoding='UTF8')
+        cat = json.loads(f.readline())
+    except FileNotFoundError:
+        print("Error")
+    else:
+        f.close()
+    finally:
+        pass
+    return cat
+    
+
+
+def comprobar(tag_nuevo):
+    try:
+        f = open('memoria.txt', 'rt', encoding='UTF8')
+        encontrado = False
+        for lineas in f:
+            linea = json.loads(lineas)
+            if linea.get("nombre_producto") == tag_nuevo or linea.get("SKU") == tag_nuevo:
+                encontrado = True
+                break
+    finally:
+        f.close()
+    return encontrado
 
 def normalizar(texto):
     return texto.strip().lower()
@@ -257,9 +286,10 @@ def buscar():
 
 
 def ingresar():
+    """     
     data = cargar_memory()
     productos = data["productos"]
-
+    """
     try:
         print("Generación de SKU:")
         print("1. Automático")
@@ -271,21 +301,22 @@ def ingresar():
             print(f"SKU generado automáticamente: {sku}")
         else:
             sku = int(input("Ingrese el SKU manualmente: "))
-            for producto in productos:
-                if producto["sku"] == sku:
-                    error_ya_existe("SKU", sku)
-                    return False
-
+            comprobar(sku)
+            while comprobar(sku) == True:
+                print("Error: No se permite ingresar sku's repetidos.")
+                sku = int(input("Ingrese el sku de nuevo: "))
+                comprobar(sku)
+                
+        nombre = input("Ingrese el nombre del producto: ")
+        comprobar(nombre)
+        while comprobar(nombre) == True:
+            print("Error: No se permite ingresar nombres repetidos.")
+            nombre = input("Ingrese el nombre de nuevo: ")
+            comprobar(nombre)
+        
         existencias = int(input("Ingrese las existencias: "))
         while existencias <= 0:
             existencias = int(input("¡Error! Ingrese un numero válido.: "))
-
-        nombre = input("Ingrese el nombre del producto: ")
-
-        for producto in productos:
-            if normalizar(producto["nombre"]) == normalizar(nombre):
-                error_ya_existe("nombre", nombre)
-                return False
 
         precio = float(input("Ingrese el precio del producto: "))
         while precio <= 0:
@@ -352,7 +383,7 @@ def ingresar():
         while True:
             proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
-                proveedor = "Fabricación Propia"
+                proveedor = "Fabricacion Propia"
                 break
             elif proveedor_input == "-1":
                 proveedor = "Sin proveedor registrado"
@@ -364,7 +395,9 @@ def ingresar():
                 proveedor = proveedor_input
                 break
 
-        nuevo_producto = {
+        nuevo_producto = {"nombre_producto": nombre, "SKU": sku, "existencias": existencias, "precio": precio, "categorias": categorias, "umbral_minimo": umbral_minimo, "umbral_maximo": umbral_maximo, "fecha_vencimiento": fecha_vencimiento, "lote": lote, "proveedor": proveedor, "fecha_ingreso": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "tipo_control": "unidades"}            
+
+        """ nuevo_producto = {
             "sku": sku,
             "nombre": nombre,
             "existencias": existencias,
@@ -377,15 +410,9 @@ def ingresar():
             "proveedor": proveedor,
             "fecha_ingreso": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "tipo_control": "unidades"
-        }
+        } """
 
-        productos.append(nuevo_producto)
-
-        for categoria in categorias:
-            if categoria not in data["categorias"]:
-                data["categorias"].append(categoria)
-
-        guardar_memory(data)
+        guardar_memory(nuevo_producto)
         print("Producto ingresado correctamente.")
 
         if existencias <= umbral_minimo and umbral_minimo > 0:
@@ -533,7 +560,7 @@ def ingresar_paquete():
         while True:
             proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
-                proveedor = "Fabricación Propia"
+                proveedor = "Fabricacion Propia"
                 break
             elif proveedor_input == "-1":
                 proveedor = "Sin proveedor registrado"
@@ -1182,43 +1209,6 @@ def existencias_sin_stock():
     escribir_log(
         f"Consultados productos sin stock: {len(sin_stock)}", nivel="INFO")
     return len(sin_stock) > 0
-
-
-def resumen_estadisticas():
-    data = cargar_memory()
-    productos = data["productos"]
-
-    if not productos:
-        print("No hay productos en el inventario.")
-        return False
-
-    total_productos = len(productos)
-    total_existencias = sum(prod["existencias"] for prod in productos)
-    valor_total = sum(prod["precio"] * prod["existencias"]
-                      for prod in productos)
-    precio_promedio = sum(prod["precio"]
-                          for prod in productos) / total_productos
-    total_categorias = len(data["categorias"])
-
-    print("Estadisticas del Inventario")
-    print("=" * 40)
-    print(f"Total de productos: {total_productos}")
-    print(f"Total de existencias: {total_existencias}")
-    print(f"Valor total del inventario: ${valor_total:,.2f}")
-    print(f"Total de categorías: {total_categorias}")
-    print(f"Precio promedio: ${precio_promedio:.2f}")
-
-    if productos:
-        mas_existencias = max(productos, key=lambda x: x["existencias"])
-        menos_existencias = min(productos, key=lambda x: x["existencias"])
-        print(
-            f"Producto con más existencias: {mas_existencias['nombre']} ({mas_existencias['existencias']})")
-        print(
-            f"Producto con menos existencias: «{menos_existencias['nombre']}» ({menos_existencias['existencias']})")
-
-    escribir_log("Generado resumen estadístico", nivel="INFO")
-    return True
-
 
 def productos_por_categoria():
     data = cargar_memory()

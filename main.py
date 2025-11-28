@@ -11,149 +11,133 @@ from funcion import (
 )
 
 
-class Colores:
-    NEGRITA = "\033[1m"
-    NEUTRO = "\033[0m"
-    ROJO = "\033[91m"
-    VERDE = "\033[92m"
-    AMARILLO = "\033[93m"
-    AZUL = "\033[94m"
-    MAGENTA = "\033[95m"
-    CIAN = "\033[96m"
-    BLANCO = "\033[97m"
-    GRIS = "\033[90m"
-    NARANJA = "\033[38;5;214m"
-    ROSA = "\033[38;5;219m"
-    BEIGE = "\033[38;5;223m"
-
-
 def menu_principal():
     limpiarPantalla()
     print(f"""╔══════════════════════════════╗
-║     {Colores.NEGRITA}SISTEMA DE INVENTARIO{Colores.NEUTRO}    ║
+║     SISTEMA DE INVENTARIO    ║
 ╠══════════════════════════════╣
-║ {Colores.AZUL}1. SKU{Colores.NEUTRO}                       ║
-║ {Colores.ROJO}2. Categorías{Colores.NEUTRO}                ║
-║ {Colores.CIAN}3. Buscar{Colores.NEUTRO}                    ║
-║ {Colores.AMARILLO}4. Umbrales{Colores.NEUTRO}                  ║
-║ {Colores.MAGENTA}5. Lotes{Colores.NEUTRO}                     ║
-║ {Colores.VERDE}6. Vencimientos{Colores.NEUTRO}              ║
-║ {Colores.BEIGE}7. Otras opciones{Colores.NEUTRO}            ║
+║ 1. SKU                       ║
+║ 2. Categorías                ║
+║ 3. Buscar                    ║
+║ 4. Umbrales                  ║
+║ 5. Lotes                     ║
+║ 6. Vencimientos              ║
+║ 7. Otras opciones            ║
 ║ 8. Salir                     ║
 ╚══════════════════════════════╝""")
 
 
 def menu_sku():
     limpiarPantalla()
-    print(f"""{Colores.AZUL}╔══════════════════════════════╗
-║        {Colores.NEGRITA}GESTIÓN DE SKU{Colores.NEUTRO}{Colores.AZUL}        ║
+    print(f"""╔══════════════════════════════╗
+║        GESTIÓN DE SKU        ║
 ╠══════════════════════════════╣
 ║ 1. Agregar SKU               ║
 ║ 2. Agregar SKU por paquete   ║
 ║ 3. Eliminar SKU              ║
 ║ 4. Modificar SKU             ║
-║ {Colores.NEUTRO}5. Volver al menú principal{Colores.AZUL}  ║
-║ {Colores.NEUTRO}6. Salir{Colores.AZUL}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 5. Volver al menú principal  ║
+║ 6. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_categorias():
     limpiarPantalla()
-    print(f"""{Colores.ROJO}╔══════════════════════════════╗
-║     {Colores.NEGRITA}GESTIÓN DE CATEGORÍAS{Colores.NEUTRO}{Colores.ROJO}    ║
+    print(f"""╔══════════════════════════════╗
+║     GESTIÓN DE CATEGORÍAS    ║
 ╠══════════════════════════════╣
 ║ 1. Agregar categoría         ║
 ║ 2. Eliminar categoría        ║
 ║ 3. Modificar categoría       ║
 ║ 4. Ver todas las categorías  ║
-║ {Colores.NEUTRO}5. Volver al menú principal{Colores.ROJO}  ║
-║ {Colores.NEUTRO}6. Salir{Colores.ROJO}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 5. Volver al menú principal  ║
+║ 6. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_buscar():
     limpiarPantalla()
-    print(f"""{Colores.CIAN}╔══════════════════════════════╗
-║           {Colores.NEGRITA}BUSQUEDA{Colores.NEUTRO}{Colores.CIAN}           ║
+    print(f"""╔══════════════════════════════╗
+║           BUSQUEDA           ║
 ╠══════════════════════════════╣
 ║ 1. SKU                       ║
 ║ 2. Producto                  ║
 ║ 3. Cantidad                  ║
 ║ 4. Precio                    ║
 ║ 5. Categoria                 ║
-║ {Colores.NEUTRO}6. Volver al menú principal{Colores.CIAN}  ║
-║ {Colores.NEUTRO}7. Salir{Colores.CIAN}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 6. Volver al menú principal  ║
+║ 7. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_umbral():
     limpiarPantalla()
-    print(f"""{Colores.AMARILLO}╔══════════════════════════════╗
-║      {Colores.NEGRITA}GESTIÓN DE UMBRALES{Colores.NEUTRO}{Colores.AMARILLO}     ║
+    print(f"""╔══════════════════════════════╗
+║      GESTIÓN DE UMBRALES     ║
 ╠══════════════════════════════╣
 ║ 1. Ver alertas de inventario ║
 ║ 2. Configurar umbral mínimo  ║
 ║ 3. Configurar umbral máximo  ║
 ║ 4. Ver sobre almacenamiento  ║
 ║ 5. Ver productos sin stock   ║
-║ {Colores.NEUTRO}6. Volver al menú principal{Colores.AMARILLO}  ║
-║ {Colores.NEUTRO}7. Salir{Colores.AMARILLO}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 6. Volver al menú principal  ║
+║ 7. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_otros():
     limpiarPantalla()
-    print(f"""{Colores.BEIGE}╔══════════════════════════════╗
-║       {Colores.NEGRITA}OTRAS OPCIONES{Colores.NEUTRO}{Colores.BEIGE}         ║
+    print(f"""╔══════════════════════════════╗
+║       OTRAS OPCIONES         ║
 ╠══════════════════════════════╣
 ║ 1. Estadísticas              ║
 ║ 2. Versión genzaloSTORAGE    ║
 ║ 3. Formatear base de datos   ║
-║ {Colores.NEUTRO}4. Volver al menú principal{Colores.BEIGE}  ║
-║ {Colores.NEUTRO}5. Salir{Colores.BEIGE}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 4. Volver al menú principal  ║
+║ 5. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_vencimientos():
     limpiarPantalla()
-    print(f"""{Colores.VERDE}╔══════════════════════════════╗
-║        {Colores.NEGRITA}VENCIMIENTOS{Colores.NEUTRO}{Colores.VERDE}          ║
+    print(f"""╔══════════════════════════════╗
+║        VENCIMIENTOS          ║
 ╠══════════════════════════════╣
 ║ 1. Ver productos próximos    ║
 ║ 2. Configurar alertas        ║
 ║ 3. Ver productos vencidos    ║
 ║ 4. Ver no perecederos        ║
 ║ 5. Ver prod. s/ venc. reg.   ║
-║ {Colores.NEUTRO}6. Volver al menú principal{Colores.VERDE}  ║
-║ {Colores.NEUTRO}7. Salir{Colores.VERDE}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 6. Volver al menú principal  ║
+║ 7. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def menu_estadisticas():
     limpiarPantalla()
     print(f"""╔══════════════════════════════╗
-║         {Colores.NEGRITA}ESTADÍSTICAS{Colores.NEUTRO}         ║
+║         ESTADÍSTICAS         ║
 ╠══════════════════════════════╣
 ║ 1. Resumen general           ║
 ║ 2. Productos por categoría   ║
 ║ 3. Distribución de precios   ║
 ║ 4. Volver al menú anterior   ║
 ║ 5. Salir del programa        ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+╚══════════════════════════════╝""")
 
 
 def menu_lotes():
     limpiarPantalla()
-    print(f"""{Colores.MAGENTA}╔══════════════════════════════╗
-║        {Colores.NEGRITA}GESTIÓN DE LOTES{Colores.NEUTRO}{Colores.MAGENTA}      ║
+    print(f"""╔══════════════════════════════╗
+║        GESTIÓN DE LOTES      ║
 ╠══════════════════════════════╣
 ║ 1. Ver todos los lotes       ║
 ║ 2. Buscar por lote           ║
 ║ 3. Configurar método salida  ║
 ║ 4. Ver próximo a vencer      ║
-║ {Colores.NEUTRO}5. Volver al menú principal{Colores.MAGENTA}  ║
-║ {Colores.NEUTRO}6. Salir{Colores.MAGENTA}                     ║
-╚══════════════════════════════╝{Colores.NEUTRO}""")
+║ 5. Volver al menú principal  ║
+║ 6. Salir                     ║
+╚══════════════════════════════╝""")
 
 
 def exit_program():
@@ -166,6 +150,7 @@ try:
     while True:
         limpiarPantalla()
         menu_principal()
+        cargar_memory()
         seleccion = input("Seleccione una opción: ")
         continuar = 0
 
