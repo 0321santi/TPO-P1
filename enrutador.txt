@@ -1,0 +1,4 @@
+productos=productos.json
+categorias=categorias.json
+base_productos=productos_{n}.json
+max_productos_por_archivo=100
