@@ -1,19 +1,23 @@
-2025-11-11 20:02:36 - INFO - Inicio del programa.
-2025-11-11 21:09:19 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 21:10:40 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 21:11:10 - INFO - Fin del programa.
-2025-11-11 21:11:15 - INFO - Inicio del programa.
-2025-11-11 21:12:26 - INFO - Inicio del programa.
-2025-11-11 21:12:38 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 21:14:11 - INFO - Inicio del programa.
-2025-11-11 22:24:03 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:24:10 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:24:11 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:24:12 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:24:18 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:24:24 - INFO - Fin del programa.
-2025-11-11 22:24:31 - INFO - Inicio del programa.
-2025-11-11 22:25:48 - ERROR - Error al ingresar valores numéricos en ingreso de producto.
-2025-11-11 22:27:34 - INFO - Fin del programa.
-2025-11-11 22:27:46 - INFO - Inicio del programa.
-2025-11-11 22:29:16 - INFO - Inicio del programa.
+2025-11-28 09:10:01 - ERROR - Error inesperado: invalid literal for int() with base 10: '& C:/Users/rodri/AppData/Local/Python/pythoncore-3.14-64/python.exe "c:/Users/rodri/Desktop/proyecto final/main.py"' 
+2025-11-28 09:10:03 - INFO - Fin del programa. 
+2025-11-28 09:10:06 - INFO - Inicio del programa. 
+2025-11-28 09:34:36 - INFO - Inicio del programa. 
+2025-11-28 09:34:51 - ERROR - ¡Error al ingresar SKU! 
+2025-11-28 09:42:24 - INFO - Fin del programa. 
+2025-11-28 09:42:26 - INFO - Inicio del programa. 
+2025-11-28 09:42:50 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:51 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:52 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:53 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:53 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:54 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:54 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:55 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:55 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:55 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:55 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:42:56 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:43:56 - ERROR - ¡Error al ingresar existencias! 
+2025-11-28 09:46:39 - INFO - Fin del programa. 
+2025-11-28 09:47:23 - INFO - Inicio del programa. 
+2025-11-28 09:47:30 - INFO - Fin del programa. 

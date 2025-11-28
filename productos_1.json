@@ -1,0 +1,33 @@
+[
+  {
+    "nombre_producto": "hola",
+    "SKU": 1,
+    "existencias": 1,
+    "precio": 1.0,
+    "categorias": [
+      "hola",
+      "hola2"
+    ],
+    "umbral_minimo": -1,
+    "umbral_maximo": -1,
+    "fecha_vencimiento": "Sin vencimiento registrado",
+    "lote": "sin lote",
+    "proveedor": "Sin proveedor registrado",
+    "fecha_ingreso": "2025-11-28 09:11:10",
+    "tipo_control": "unidades"
+  },
+  {
+    "nombre_producto": "papas",
+    "SKU": 2,
+    "existencias": 32,
+    "precio": 12.0,
+    "categorias": [],
+    "umbral_minimo": -1,
+    "umbral_maximo": -1,
+    "fecha_vencimiento": "Sin vencimiento registrado",
+    "lote": "sin lote",
+    "proveedor": "Sin proveedor registrado",
+    "fecha_ingreso": "2025-11-28 09:44:20",
+    "tipo_control": "unidades"
+  }
+]

@@ -4,10 +4,10 @@ from funcion import (
     existencias_sin_stock, productos_por_categoria, distribucion_precios,
     versionGS, formatearDB, cargar_memory, ingresar_paquete, 
     configurar_umbral_maximo, verificar_vencimientos_proximos, configurar_alerta_vencimiento, 
-    verificar_vencidos, ver_productos_no_perecederos, verificar_alertas_vencimiento, 
-    ver_todas_alertas_vencimiento, ver_todos_lotes, buscar_por_lote, configurar_metodo_salida, 
-    ver_proximo_vencer_lotes, generador_de_sku, verificar_sobre_almacenamiento,
-    ver_sin_vencimiento_registrado, gestionar_proveedores, limpiarPantalla
+    verificar_vencidos, ver_productos_no_perecederos, 
+ ver_todos_lotes, buscar_por_lote, configurar_metodo_salida, 
+    ver_proximo_vencer_lotes, verificar_sobre_almacenamiento,
+    ver_sin_vencimiento_registrado,  limpiarPantalla
 )
 
 
@@ -162,10 +162,7 @@ try:
                     continuar = 0
                     match normalizar(opcion_sku):
                         case "1" | "uno" | "agregar" | "agregar sku":
-                            while continuar != -1:
                                 ingresar()
-                                continuar = int(
-                                    input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
 
                         case "2" | "dos" | "agregar paquete" | "paquete":
                             while continuar != -1:
