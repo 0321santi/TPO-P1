@@ -7,9 +7,9 @@ def limpiarPantalla():
 
 def escribir_log(mensaje, nivel="INFO"):
     try:
+        f = open('loginventario.txt', 'at', encoding = 'UTF8')
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open('loginventario.txt', 'a', encoding='utf-8') as f:
-            f.write(f"{timestamp} - {nivel} - {mensaje}\n")
+        f.write(f"{timestamp} - {nivel} - {mensaje} \n")
     except FileNotFoundError as e:
         print(f"¡Error! No se puedo escribir en el log.: {e}")
 
@@ -25,7 +25,6 @@ def cargar_memory():
     finally:
         return
 
-
 def guardar_memory(data):
     f = open('memoria.txt', 'at', encoding='UTF8')
     f.write(json.dumps(data) + '\n')
@@ -40,7 +39,7 @@ def guardar_categorias(cats):
 def leer_categorias(cats):
     try:
         f = open('categorias.txt', 'rt', encoding='UTF8')
-        for i in cats:
+        for i in range(len(cats)):
             for j in f:
                 if cats[i] == j:
                     cats.pop(i)
@@ -66,7 +65,6 @@ def comprobar(tag_nuevo):
 
 def normalizar(texto):
     return texto.strip().lower()
-
 
 def similitud(texto1, texto2):
     texto1 = normalizar(texto1)
@@ -95,8 +93,6 @@ def error_ya_existe(tipo, valor):
 
 
 def buscar():
-    data = cargar_memory()
-    productos = data["productos"]
     encuentro = False
     seleccion = normalizar(input("Seleccione una opción:"))
 
@@ -132,21 +128,24 @@ def buscar():
         case "2" | "dos" | "buscar producto":
             consulta = input("Ingrese el nombre del producto a buscar: ")
             consulta_norm = normalizar(consulta)
-            for producto in productos:
-                if normalizar(producto["nombre"]) == consulta_norm:
-                    categorias_str = ", ".join(
-                        producto["categorias"]) if producto["categorias"] else "Sin categorías"
-                    print(
-                        f"El producto «{producto['nombre']}» tiene SKU Nº {producto['sku']}, {producto['existencias']} existencia(s), precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
+            arch = open('memoria.txt', 'rt', encoding='UTF8')
+            encontrado = False
+            for lineas in arch:
+                linea = json.loads(lineas)
+                if linea.get("nombre_producto") == consulta_norm:
+                    print(f"El producto «{linea.get("nombre_producto")}» tiene SKU Nº {linea.get("SKU")}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                     encuentro = True
+                    break
+            arch.close()
 
             if encuentro == False:
                 resultados = []
-                for producto in productos:
-                    sim = similitud(consulta_norm, producto["nombre"])
-                    if sim >= 0.4 or consulta_norm in normalizar(producto["nombre"]):
-                        resultados.append((sim, producto))
-                if resultados:
+                arch = open('memoria.txt', 'rt', encoding='UTF8')
+                for lineas in arch:
+                    sim = similitud(consulta_norm, lineas.get("nombre_producto"))
+                    if sim >= 0.4 or consulta_norm in normalizar(lineas.get("nombre_producto")):
+                        resultados.append((sim, lineas))
+                if resultados: #no se como continuar desde aca
                     print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
                     for sim, prod in sorted(resultados, reverse=True):
                         categorias_str = ", ".join(
