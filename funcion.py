@@ -50,7 +50,7 @@ def leer_categorias(cats):
     f.close()
     return cats
 
-def comprobar(tag_nuevo):
+def comprobar(tag_nuevo): # Retornara TRUE si se encuentra una coincidencia
     try:
         f = open('memoria.txt', 'rt', encoding='UTF8')
         encontrado = False
@@ -133,7 +133,7 @@ def buscar():
             for lineas in arch:
                 linea = json.loads(lineas)
                 if linea.get("nombre_producto") == consulta_norm:
-                    print(f"El producto «{linea.get("nombre_producto")}» tiene SKU Nº {linea.get("SKU")}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
+                    print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                     encuentro = True
                     break
             arch.close()
@@ -142,16 +142,15 @@ def buscar():
                 resultados = []
                 arch = open('memoria.txt', 'rt', encoding='UTF8')
                 for lineas in arch:
-                    sim = similitud(consulta_norm, lineas.get("nombre_producto"))
-                    if sim >= 0.4 or consulta_norm in normalizar(lineas.get("nombre_producto")):
-                        resultados.append((sim, lineas))
+                    linea = json.loads(lineas)
+                    sim = similitud(consulta_norm, linea.get("nombre_producto"))
+                    if sim >= 0.4 or consulta_norm in normalizar(linea.get("nombre_producto")):
+                        resultados.append((sim, linea))
                 if resultados: #no se como continuar desde aca
                     print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
                     for sim, prod in sorted(resultados, reverse=True):
-                        categorias_str = ", ".join(
-                            prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                        print(
-                            f"«{prod['nombre']}», (SKU Nº {prod['sku']}, {prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
+                        categorias_str = ", ".join(prod.get("categorias")) if prod.get("categorias") else "Sin categorías"
+                        print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»)")
                 else:
                     error_no_encontrado("Producto", consulta)
 
