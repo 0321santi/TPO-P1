@@ -63,6 +63,19 @@ def comprobar(tag_nuevo): # Retornara TRUE si se encuentra una coincidencia
         f.close()
     return encontrado
 
+def remplazar(productos):
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'at', encoding='UTF8')
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea.get('nombre_producto') not in productos and linea.get('SKU') not in productos:
+                temp.write(json.dumps(linea) + '\n')
+    finally:
+        arch.close()
+        temp.close()
+    return
+
 def normalizar(texto):
     return texto.strip().lower()
 
@@ -146,7 +159,7 @@ def buscar():
                     sim = similitud(consulta_norm, linea.get("nombre_producto"))
                     if sim >= 0.4 or consulta_norm in normalizar(linea.get("nombre_producto")):
                         resultados.append((sim, linea))
-                if resultados: #no se como continuar desde aca
+                if resultados: # parece terminado ahora hay que replicarlo para todos los demas. Falta manejar categorias tambien.
                     print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
                     for sim, prod in sorted(resultados, reverse=True):
                         categorias_str = ", ".join(prod.get("categorias")) if prod.get("categorias") else "Sin categorías"
@@ -303,8 +316,7 @@ def ingresar():
         categorias_input = input().strip()
 
         if categorias_input:
-            categorias = [cat.strip()
-                          for cat in categorias_input.split(",") if cat.strip()]
+            categorias = [cat.strip() for cat in categorias_input.split(",") if cat.strip()]
             categorias = sorted(set(categorias))
             print(f"Categorías procesadas: {', '.join(categorias)}")
         else:
@@ -812,68 +824,38 @@ def modificar():
 
 
 def eliminar():
-    data = cargar_memory()
-    productos = data["productos"]
+    producto = 0
+    seleccion = 0
+    eliminar = []
+    nombre_memoria = "memoria.txt"
+    nombre_temp = "temp.txt"
 
-    seleccion2 = normalizar(
-        input("Eliminar por SKU (1), Eliminar Producto (2): "))
-    match seleccion2:
-        case "1" | "uno" | "sku":
-            try:
-                sku = int(input("Ingrese el SKU a eliminar: "))
-                for i, producto in enumerate(productos):
-                    if producto["sku"] == sku:
-                        print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                        print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                        confirmar = input("Presione cualquier tecla para eliminar, 0 para modificar, -1 para cancelar: ")
-                        if confirmar == "0":
-                            return modificar()
-                        elif confirmar == "-1":
-                            return False
-                        
-                        productos.pop(i)
-                        data["categorias"] = []
-                        for prod in productos:
-                            for cat in prod["categorias"]:
-                                if cat not in data["categorias"]:
-                                    data["categorias"].append(cat)
-                        guardar_memory(data)
-                        print("Producto eliminado correctamente.")
-                        return True
-                error_no_encontrado("SKU", sku)
-                return False
-            except ValueError:
-                error_valor_numerico("SKU")
-                return False
+    seleccion = input("Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
 
-        case "2" | "dos" | "eliminar producto":
-            nombre = normalizar(
-                input("Ingrese el nombre del producto a eliminar: "))
-            for i, producto in enumerate(productos):
-                if normalizar(producto["nombre"]) == nombre:
-                    print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                    print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                    confirmar = input("Presione cualquier tecla para eliminar, 0 para modificar, -1 para cancelar: ")
-                    if confirmar == "0":
-                        return modificar()
-                    elif confirmar == "-1":
-                        return False
-                    
-                    productos.pop(i)
-                    data["categorias"] = []
-                    for prod in productos:
-                        for cat in prod["categorias"]:
-                            if cat not in data["categorias"]:
-                                data["categorias"].append(cat)
-                    guardar_memory(data)
-                    print("Producto eliminado correctamente.")
-                    return True
-            error_no_encontrado("Producto", nombre)
-            return False
+    if seleccion == "1":
+        while producto != -1:
+            producto = int(input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
 
-        case _:
-            print("Error! Opción no válida.")
-            return False
+            if comprobar(producto):
+                eliminar.append(producto)
+            elif producto != -1:
+                print("producto no encontrado")
+
+    elif seleccion == "2":
+        while producto != "-1":
+            producto = input("Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
+
+            if comprobar(producto):
+                eliminar.append(producto)
+            elif producto != "-1":
+                print("Producto no encontrado")
+    else:
+        return
+
+    remplazar(eliminar)
+    print("Productos eliminados.")
+    os.replace(nombre_temp, nombre_memoria)
+    return
 
 
 def gestionar_categoria_modo(modo=None):
