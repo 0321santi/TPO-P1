@@ -180,8 +180,7 @@ def inicializar_sistema_archivos():
     except Exception as e:
         print(f"Error inicializando sistema: {e}")
 
-def guardar_categorias(categorias):
-    """Guarda categorías en archivo JSON"""
+def comprobar(tag_nuevo): # Retornara TRUE si se encuentra una coincidencia
     try:
         ruta_categorias = obtener_ruta_archivo("categorias")
         f = open(ruta_categorias, 'wt', encoding='UTF8')
@@ -190,6 +189,19 @@ def guardar_categorias(categorias):
     except Exception as e:
         print(f"Error guardando categorías: {e}")
 
+
+def remplazar(productos):
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'at', encoding='UTF8')
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea.get('nombre_producto') not in productos and linea.get('SKU') not in productos:
+                temp.write(json.dumps(linea) + '\n')
+    finally:
+        arch.close()
+        temp.close()
+    return
 
 def normalizar(texto):
     return texto.strip().lower()
@@ -249,22 +261,34 @@ def buscar():
     
     seleccion = normalizar(input("Seleccione una opción: "))
 
-    if seleccion in ["1", "uno", "buscar sku"]:
-        try:
-            sku = int(input("Ingrese el SKU a buscar: "))
-            for producto in productos:
-                if producto.get("SKU") == sku:
-                    categorias_str = ", ".join(producto["categorias"]) if producto["categorias"] else "Sin categorías"
-                    print(f"SKU Nº {sku}: «{producto['nombre_producto']}»")
-                    print(f"  Existencias: {producto['existencias']}")
-                    print(f"  Precio: ${producto['precio']:.2f}")
-                    print(f"  Categorías: {categorias_str}")
+        case "2" | "dos" | "buscar producto":
+            consulta = input("Ingrese el nombre del producto a buscar: ")
+            consulta_norm = normalizar(consulta)
+            arch = open('memoria.txt', 'rt', encoding='UTF8')
+            encontrado = False
+            for lineas in arch:
+                linea = json.loads(lineas)
+                if linea.get("nombre_producto") == consulta_norm:
+                    print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                     encuentro = True
                     break
-            if not encuentro:
-                error_no_encontrado("SKU", sku)
-        except ValueError:
-            error_valor_numerico("SKU")
+            arch.close()
+
+            if encuentro == False:
+                resultados = []
+                arch = open('memoria.txt', 'rt', encoding='UTF8')
+                for lineas in arch:
+                    linea = json.loads(lineas)
+                    sim = similitud(consulta_norm, linea.get("nombre_producto"))
+                    if sim >= 0.4 or consulta_norm in normalizar(linea.get("nombre_producto")):
+                        resultados.append((sim, linea))
+                if resultados: # parece terminado ahora hay que replicarlo para todos los demas. Falta manejar categorias tambien.
+                    print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
+                    for sim, prod in sorted(resultados, reverse=True):
+                        categorias_str = ", ".join(prod.get("categorias")) if prod.get("categorias") else "Sin categorías"
+                        print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»)")
+                else:
+                    error_no_encontrado("Producto", consulta)
 
     elif seleccion in ["2", "dos", "buscar producto"]:
         consulta = input("Ingrese el nombre del producto a buscar: ")
@@ -1051,68 +1075,38 @@ def modificar():
         return False
 
 def eliminar():
-    data = cargar_memory()
-    productos = data["productos"]
-    
-    print("\n--- ELIMINAR ---")
-    print("1. Eliminar por SKU")
-    print("2. Eliminar por Producto")
-    print("3. Volver")
-    
-    seleccion2 = normalizar(input("Seleccione una opción: "))
+    producto = 0
+    seleccion = 0
+    eliminar = []
+    nombre_memoria = "memoria.txt"
+    nombre_temp = "temp.txt"
 
-    if seleccion2 in ["1", "uno", "sku"]:
-        try:
-            sku = int(input("Ingrese el SKU a eliminar: "))
-            for i, producto in enumerate(productos):
-                if producto.get("SKU") == sku:
-                    print(f"Producto encontrado: {producto['nombre_producto']} (SKU: {producto['SKU']})")
-                    confirmar = input("¿Está seguro de eliminar? (s/n): ")
-                    if confirmar.lower() == 's':
-                        productos.pop(i)
-                        # Actualizar categorías globales
-                        data["categorias"] = []
-                        for prod in productos:
-                            for cat in prod["categorias"]:
-                                if cat not in data["categorias"]:
-                                    data["categorias"].append(cat)
-                        guardar_memory(data)
-                        print("Producto eliminado correctamente.")
-                        return True
-                    else:
-                        print("Eliminación cancelada.")
-                        return False
-            error_no_encontrado("SKU", sku)
-            return False
-        except ValueError:
-            error_valor_numerico("SKU")
-            return False
+    seleccion = input("Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
 
-    elif seleccion2 in ["2", "dos", "eliminar producto"]:
-        nombre = normalizar(input("Ingrese el nombre del producto a eliminar: "))
-        for i, producto in enumerate(productos):
-            if normalizar(producto.get("nombre_producto", "")) == nombre:
-                print(f"Producto encontrado: {producto['nombre_producto']} (SKU: {producto['SKU']})")
-                confirmar = input("¿Está seguro de eliminar? (s/n): ")
-                if confirmar.lower() == 's':
-                    productos.pop(i)
-                    # Actualizar categorías globales
-                    data["categorias"] = []
-                    for prod in productos:
-                        for cat in prod["categorias"]:
-                            if cat not in data["categorias"]:
-                                data["categorias"].append(cat)
-                    guardar_memory(data)
-                    print("Producto eliminado correctamente.")
-                    return True
-                else:
-                    print("Eliminación cancelada.")
-                    return False
-        error_no_encontrado("Producto", nombre)
-        return False
+    if seleccion == "1":
+        while producto != -1:
+            producto = int(input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
 
-    elif seleccion2 in ["3", "tres", "volver"]:
-        return True
+            if comprobar(producto):
+                eliminar.append(producto)
+            elif producto != -1:
+                print("producto no encontrado")
+
+    elif seleccion == "2":
+        while producto != "-1":
+            producto = input("Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
+
+            if comprobar(producto):
+                eliminar.append(producto)
+            elif producto != "-1":
+                print("Producto no encontrado")
+    else:
+        return
+
+    remplazar(eliminar)
+    print("Productos eliminados.")
+    os.replace(nombre_temp, nombre_memoria)
+    return
 
     else:
         print("Error! Opción no válida.")

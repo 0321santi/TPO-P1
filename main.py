@@ -162,7 +162,9 @@ try:
                     continuar = 0
                     match normalizar(opcion_sku):
                         case "1" | "uno" | "agregar" | "agregar sku":
+                            while continuar != "-1":
                                 ingresar()
+                                continuar = input("Ingrese cualquier valor para seguir o ingrese -1 para salir: ")
 
                         case "2" | "dos" | "agregar paquete" | "paquete":
                             while continuar != -1:
@@ -172,10 +174,6 @@ try:
 
                         case "3" | "tres" | "eliminar" | "eliminar sku":
                             eliminar()
-                            while continuar != -1:
-                                eliminar()
-                                continuar = int(input("Ingrese cualquier valor para seguir eliminando o -1 para salir: "))
-                            input("Presione Intro para continuar.")
 
                         case "4" | "cuatro" | "modificar" | "modificar sku":
                             modificar()
