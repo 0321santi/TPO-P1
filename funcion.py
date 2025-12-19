@@ -2,55 +2,83 @@ import json
 from datetime import datetime
 import os
 
+
 def limpiarPantalla():
     os.system('cls')
 
+
 def escribir_log(mensaje, nivel="INFO"):
     try:
-        f = open('loginventario.txt', 'at', encoding = 'UTF8')
+        f = open('loginventario.txt', 'at', encoding='UTF8')
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         f.write(f"{timestamp} - {nivel} - {mensaje} \n")
+        f.close()
     except FileNotFoundError as e:
         print(f"¡Error! No se puedo escribir en el log.: {e}")
+    
+
 
 def cargar_memory():
     try:
         f = open('memoria.txt', 'rt', encoding='UTF8')
     except FileNotFoundError:
-        print("Error: archivo de productos no encontrado.")
+        print("Error: Archivo de Productos no encontrado.")
         print("Creando un nuevo archivo...")
-        f = open('memoria.txt', 'at', encoding = 'UTF8')
+        f = open('memoria.txt', 'at', encoding='UTF8')
     else:
         f.close()
-    finally:
-        return
+    return
+
+def cargar_categorias():
+    try:
+        f = open('categorias.txt', 'rt', encoding='UTF8')
+    except FileNotFoundError:
+        print("Error: Archivo de categorias no encontrado.")
+        print("Creando un nuevo archivo...")
+        f = open('categorias.txt', 'at', encoding='UTF8')
+    else:
+        f.close()
+    return
+
 
 def guardar_memory(data):
     f = open('memoria.txt', 'at', encoding='UTF8')
     f.write(json.dumps(data) + '\n')
     f.close()
+    return
+
 
 def guardar_categorias(cats):
-    f = open('categorias.txt', 'at', encoding='UTF8')
-    for i in range(len(cats)):
-        f.write(f"{cats[i]}\n")
-    f.close()
+    try:
+        arch = open("categorias.txt", "at", encoding="UTF8")
+        for cat in cats:
+            arch.write(cat + '\n')
+    except FileNotFoundError:
+        print("no")
+    finally:
+        arch.close() 
+    return
+
+
 
 def leer_categorias(cats):
     try:
         f = open('categorias.txt', 'rt', encoding='UTF8')
-        for i in range(len(cats)):
-            for j in f:
-                if cats[i] == j:
-                    cats.pop(i)
+        arch_memoria = open('memoria.txt', 'rt', encoding='UTF8')
+        for linea in f:
+            cat = linea.strip()
+            if cat in cats:
+                cats.remove(cat)
     except FileNotFoundError as e:
         print(f"Error {e}")
         print("creando nuevo archivo...")
         f = open('categorias.txt', 'at', encoding='UTF8')
-    f.close()
+    finally:
+        f.close()
     return cats
 
-def comprobar(tag_nuevo): # Retornara TRUE si se encuentra una coincidencia
+
+def comprobar(tag_nuevo):  # Retornara TRUE si se encuentra una coincidencia
     try:
         f = open('memoria.txt', 'rt', encoding='UTF8')
         encontrado = False
@@ -62,6 +90,8 @@ def comprobar(tag_nuevo): # Retornara TRUE si se encuentra una coincidencia
     finally:
         f.close()
     return encontrado
+
+
 
 def remplazar(productos):
     try:
@@ -76,8 +106,46 @@ def remplazar(productos):
         temp.close()
     return
 
+def actualizar_categorias():
+    try:
+        mem_arch = open('memoria.txt', 'rt', encoding='UTF8')
+        cat_arch = open('categorias.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'at', encoding='UTF8')
+        for cat in cat_arch:
+            existe = False
+            for lineas in mem_arch:
+                linea = json.loads(lineas)
+                if normalizar(cat) in linea.get("categorias"):
+                    existe = True
+                    break
+            if existe:
+                temp.write(cat + '\n')
+    except FileNotFoundError as e:
+        print("Error: ", e)
+    finally:
+        mem_arch.close()
+        cat_arch.close()
+        temp.close()
+        os.replace("temp.txt", "categorias.txt")
+
+    return
+
+def remplazar_modificar(productos):
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'at', encoding='UTF8')
+        for lineas in arch:
+            linea = json.loads(normalizar(lineas))
+            if linea.get('nombre_producto') != productos:
+                temp.write(json.dumps(linea) + '\n')
+    finally:
+        arch.close()
+        temp.close()
+    return
+
 def normalizar(texto):
     return texto.strip().lower()
+
 
 def similitud(texto1, texto2):
     texto1 = normalizar(texto1)
@@ -88,6 +156,42 @@ def similitud(texto1, texto2):
         if texto1[:i] == texto2[:i]:
             return i / max(len(texto1), len(texto2))
     return 0
+
+def buscar_producto(nombre):
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        consulta_norm = normalizar(nombre)
+
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea.get("nombre_producto") == consulta_norm:
+                print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
+                break
+    except FileNotFoundError:
+        print("no")
+    finally:
+        arch.close()
+    return linea
+
+def similitud_numerica(num1, num2):
+    """Similitud específica para números/SKU"""
+    str1 = str(num1)
+    str2 = str(num2)
+
+    # Similitud por coincidencia de inicio (como la función actual)
+    for i in range(min(len(str1), len(str2)), 0, -1):
+        if str1[:i] == str2[:i]:
+            return i / max(len(str1), len(str2))
+
+    # Similitud por diferencia relativa (nueva)
+    try:
+        n1 = int(num1)
+        n2 = int(num2)
+        diferencia = abs(n1 - n2)
+        # Normalizar: 1/(1+diferencia) da valores entre 0 y 1
+        return 1 / (1 + diferencia / max(1, n1))
+    except:
+        return 0
 
 
 def error_valor_numerico(campo):
@@ -113,170 +217,181 @@ def buscar():
         case "1" | "uno" | "buscar sku":
             try:
                 sku = int(input("Ingrese el SKU a buscar: "))
-                for producto in productos:
-                    if producto["sku"] == sku:
-                        categorias_str = ", ".join(
-                            producto["categorias"]) if producto["categorias"] else "Sin categorías"
+                encontrado = False
+                resultados = []
+                arch = open('memoria.txt', 'rt', encoding='UTF8')
+
+                for lineas in arch:
+                    linea = json.loads(lineas)
+                    if linea.get("SKU") == sku:
                         print(
-                            f"El SKU Nº {sku} corresponde al producto «{producto['nombre']}», tiene {producto['existencias']} existencia(s), un precio de ${producto['precio']:.2f} y categorías: «{categorias_str}».")
-                        encuentro = True
-                if encuentro == False:
-                    sugerencias = sorted(
-                        productos, key=lambda x: abs(x["sku"] - sku))[:3]
-                    if sugerencias:
-                        print(
-                            "SKU no encontrado. ¿Quizá buscaba alguno de los siguientes?:")
-                        for prod in sugerencias:
-                            categorias_str = ", ".join(
-                                prod["categorias"]) if prod["categorias"] else "Sin categorías."
-                            print(
-                                f"SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: «{categorias_str}»)")
-                    else:
-                        error_no_encontrado("SKU", sku)
-                # return False
+                            f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
+                        encontrado = True
+                        break
+
+                if encontrado == False:
+                    resultados = []
+                    arch = open('memoria.txt', 'rt', encoding='UTF8')
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        sim = similitud_numerica(sku, linea.get("SKU"))
+                        if sim >= 0.4 or str(sku) in str(linea.get("SKU")):
+                            resultados.append((sim, linea))
+                if resultados:
+                    print("SKU exacto no encontrado. ¿Quizá quiso decir?:")
+                    for sim, prod in sorted(resultados, reverse=True):
+                        categorias_str = ", ".join(prod.get("categorias")) if prod.get(
+                            "categorias") else "Sin categorías"
+                        print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»)")
+
+                arch.close()
             except ValueError:
                 error_valor_numerico("SKU")
-                return False
 
         case "2" | "dos" | "buscar producto":
             consulta = input("Ingrese el nombre del producto a buscar: ")
             consulta_norm = normalizar(consulta)
             arch = open('memoria.txt', 'rt', encoding='UTF8')
             encontrado = False
+
             for lineas in arch:
                 linea = json.loads(lineas)
                 if linea.get("nombre_producto") == consulta_norm:
                     print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                     encuentro = True
                     break
-            arch.close()
 
             if encuentro == False:
                 resultados = []
                 arch = open('memoria.txt', 'rt', encoding='UTF8')
                 for lineas in arch:
                     linea = json.loads(lineas)
-                    sim = similitud(consulta_norm, linea.get("nombre_producto"))
+                    sim = similitud(
+                        consulta_norm, linea.get("nombre_producto"))
                     if sim >= 0.4 or consulta_norm in normalizar(linea.get("nombre_producto")):
                         resultados.append((sim, linea))
-                if resultados: # parece terminado ahora hay que replicarlo para todos los demas. Falta manejar categorias tambien.
+                if resultados:  # parece terminado ahora hay que replicarlo para todos los demas. Falta manejar categorias tambien.
                     print("Producto exacto no encontrado. ¿Quizá quiso decir?:")
                     for sim, prod in sorted(resultados, reverse=True):
-                        categorias_str = ", ".join(prod.get("categorias")) if prod.get("categorias") else "Sin categorías"
-                        print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»)")
+                        categorias_str = ", ".join(prod.get("categorias")) if prod.get(
+                            "categorias") else "Sin categorías"
+                        print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»")
                 else:
                     error_no_encontrado("Producto", consulta)
+            arch.close()
 
         case "3" | "tres" | "buscar cantidad":
             modo = normalizar(
-                input("Buscar por cantidad: 'igual', 'mayor', 'menor' o 'rango': "))
-            encontrados = []
+                input("Buscar por cantidad: 'igual', 'mayor' o 'menor', 'rango': "))
+
+            arch = open("memoria.txt", "rt", encoding="UTF8")
+
             try:
-                if modo in ("igual", "1", "iguales"):
-                    q = int(input("Ingrese la cantidad exacta: "))
-                    encontrados = [
-                        prod for prod in productos if prod["existencias"] == q]
+                if modo in ("igual", "1", "exacto"):
+                    c = int(input("Ingrese la cantidad exacta: "))
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if c == linea.get("existencias"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("mayor", "2"):
-                    q = int(input("Mostrar productos con cantidad >: "))
-                    encontrados = [
-                        prod for prod in productos if prod["existencias"] > q]
+                    c = int(input("Mostrar productos con cantidad > : "))
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if c < linea.get("existencias"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("menor", "3"):
-                    q = int(input("Mostrar productos con cantidad <: "))
-                    encontrados = [
-                        prod for prod in productos if prod["existencias"] < q]
+                    c = int(input("Mostrar productos con cantidad > : "))
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if c > linea.get("existencias"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("rango", "4"):
-                    lo = int(input("Ingrese el mínimo del rango: "))
-                    hi = int(input("Ingrese el máximo del rango: "))
+                    lo = int(
+                        input("Ingrese la cantidad mínima del rango: "))
+                    hi = int(
+                        input("Ingrese la cantidad máxima del rango: "))
                     if lo > hi:
                         lo, hi = hi, lo
-                    encontrados = [
-                        prod for prod in productos if lo <= prod["existencias"] <= hi]
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if lo <= linea.get("existencias") <= hi:
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 else:
                     print("¡Error! Opción no válida para cantidad.")
                     return False
+
             except ValueError:
                 error_valor_numerico("cantidad")
-                return False
-
-            if encontrados:
-                print("Productos encontrados:")
-                for prod in encontrados:
-                    categorias_str = ", ".join(
-                        prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                    print(
-                        f"SKU Nº {prod['sku']}: «{prod['nombre']}», ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
-                return True
-            else:
-                print("Error! No se encontraron productos con esa cantidad.")
-                return False
+            finally:
+                arch.close()
 
         case "4" | "cuatro" | "buscar precio":
             modo = normalizar(
                 input("Buscar por precio: 'igual', 'mayor', 'menor' o 'rango': "))
-            encontrados = []
+            arch = open('memoria.txt', 'rt', encoding='UTF8')
             try:
                 if modo in ("igual", "1", "exacto"):
                     p = float(input("Ingrese el precio exacto: "))
-                    encontrados = [prod for prod in productos if abs(
-                        prod["precio"] - p) < 1e-9]
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if p == linea.get("precio"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("mayor", "2"):
                     p = float(input("Mostrar productos con precio > : "))
-                    encontrados = [
-                        prod for prod in productos if prod["precio"] > p]
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if p < linea.get("precio"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("menor", "3"):
                     p = float(input("Mostrar productos con precio < : "))
-                    encontrados = [
-                        prod for prod in productos if prod["precio"] < p]
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if p > linea.get("precio"):
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+
                 elif modo in ("rango", "4"):
                     lo = float(input("Ingrese el precio mínimo del rango: "))
                     hi = float(input("Ingrese el precio máximo del rango: "))
                     if lo > hi:
                         lo, hi = hi, lo
-                    encontrados = [
-                        prod for prod in productos if lo <= prod["precio"] <= hi]
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if lo <= linea.get("precio") <= hi:
+                            print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
+                
                 else:
                     print("¡Error! Opción no válida para precio.")
-                    return False
+                    
+        
             except ValueError:
                 error_valor_numerico("precio")
-                return False
+            
+            finally:
+                arch.close()
 
-            if encontrados:
-                print("Resultados encontrados:")
-                for prod in encontrados:
-                    categorias_str = ", ".join(
-                        prod["categorias"]) if prod["categorias"] else "Sin categorías"
-                    print(
-                        f"SKU {prod['sku']}: {prod['nombre']} ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
-                return True
-            else:
-                print("No se encontraron productos con ese precio.")
-                return False
 
         case "5" | "cinco" | "buscar categoría":
-            categoria_buscar = normalizar(
-                input("Ingrese la categoría a buscar: "))
-            encontrados = []
-            for producto in productos:
-                if any(normalizar(cat) == categoria_buscar for cat in producto["categorias"]):
-                    encontrados.append(producto)
+            categoria_buscar = normalizar(input("Ingrese la categoría a buscar: "))
 
-            if encontrados:
-                print(
-                    f"Productos encontrados en la categoría '{categoria_buscar}':")
-                for prod in encontrados:
-                    categorias_str = ", ".join(prod["categorias"])
-                    print(
-                        f"SKU {prod['sku']}: {prod['nombre']} ({prod['existencias']} existencia(s), precio de ${prod['precio']:.2f}, categorías: {categorias_str})")
-                return True
-            else:
-                error_no_encontrado("Categoría", categoria_buscar)
+            arch = open('memoria.txt', 'rt', encoding='UTF8')
+            for lineas in arch:
+                linea = json.loads(lineas)
+                if categoria_buscar in linea.get("categorias"):
+                    print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
+            arch.close()
 
         case "6" | "seis" | "volver al menu principal":
-            return True
+            return
 
         case _:
             print("¡Error! Opción no válida.")
+    return
 
 
 def ingresar():
@@ -296,14 +411,14 @@ def ingresar():
                 print("Error: No se permite ingresar sku's repetidos.")
                 sku = int(input("Ingrese el sku de nuevo: "))
                 comprobar(sku)
-                
+
         nombre = input("Ingrese el nombre del producto: ")
         comprobar(nombre)
         while comprobar(nombre) == True:
             print("Error: No se permite ingresar nombres repetidos.")
             nombre = input("Ingrese el nombre de nuevo: ")
             comprobar(nombre)
-        
+
         existencias = int(input("Ingrese las existencias: "))
         while existencias <= 0:
             existencias = int(input("¡Error! Ingrese un numero válido.: "))
@@ -316,7 +431,8 @@ def ingresar():
         categorias_input = input().strip()
 
         if categorias_input:
-            categorias = [cat.strip() for cat in categorias_input.split(",") if cat.strip()]
+            categorias = [cat.strip()
+                          for cat in categorias_input.split(",") if cat.strip()]
             categorias = sorted(set(categorias))
             print(f"Categorías procesadas: {', '.join(categorias)}")
         else:
@@ -357,12 +473,14 @@ def ingresar():
 
         lote = None
         while True:
-            lote_input = input("Ingrese el número de lote (-1 para no añadir): ").strip()
+            lote_input = input(
+                "Ingrese el número de lote (-1 para no añadir): ").strip()
             if lote_input == "-1":
                 lote = "sin lote"
                 break
             elif lote_input == "":
-                print("¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
+                print(
+                    "¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
                 continue
             else:
                 lote = lote_input
@@ -370,7 +488,8 @@ def ingresar():
 
         proveedor = None
         while True:
-            proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
+            proveedor_input = input(
+                "Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
                 proveedor = "Fabricacion Propia"
                 break
@@ -384,31 +503,18 @@ def ingresar():
                 proveedor = proveedor_input
                 break
 
-        nuevo_producto = {"nombre_producto": nombre, "SKU": sku, "existencias": existencias, "precio": precio, "categorias": categorias, "umbral_minimo": umbral_minimo, "umbral_maximo": umbral_maximo, "fecha_vencimiento": fecha_vencimiento, "lote": lote, "proveedor": proveedor, "fecha_ingreso": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "tipo_control": "unidades"}            
-
-        """ nuevo_producto = {
-            "sku": sku,
-            "nombre": nombre,
-            "existencias": existencias,
-            "precio": precio,
-            "categorias": categorias,
-            "umbral_minimo": umbral_minimo,
-            "umbral_maximo": umbral_maximo,
-            "fecha_vencimiento": fecha_vencimiento,
-            "lote": lote,
-            "proveedor": proveedor,
-            "fecha_ingreso": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "tipo_control": "unidades"
-        } """
-
+        nuevo_producto = {"nombre_producto": nombre, "SKU": sku, "existencias": existencias, "precio": precio, "categorias": categorias, "umbral_minimo": umbral_minimo, "umbral_maximo": umbral_maximo,
+                          "fecha_vencimiento": fecha_vencimiento, "lote": lote, "proveedor": proveedor, "fecha_ingreso": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "tipo_control": "unidades"}
+    
         guardar_memory(nuevo_producto)
+
         guardar_categorias(leer_categorias(categorias))
         print("Producto ingresado correctamente.")
 
         if existencias <= umbral_minimo and umbral_minimo > 0:
             print("¡Atención! El producto está por debajo del umbral mínimo.")
 
-        if umbral_maximo > 0 and existencias > umbral_maximo:
+        if umbral_maximo > 0 and existencias >= umbral_maximo:
             print("¡Atención! El producto supera el umbral máximo.")
 
         return True
@@ -535,12 +641,14 @@ def ingresar_paquete():
 
         lote = None
         while True:
-            lote_input = input("Ingrese el número de lote (-1 para no añadir): ").strip()
+            lote_input = input(
+                "Ingrese el número de lote (-1 para no añadir): ").strip()
             if lote_input == "-1":
                 lote = "sin lote"
                 break
             elif lote_input == "":
-                print("¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
+                print(
+                    "¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
                 continue
             else:
                 lote = lote_input
@@ -548,7 +656,8 @@ def ingresar_paquete():
 
         proveedor = None
         while True:
-            proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
+            proveedor_input = input(
+                "Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
                 proveedor = "Fabricacion Propia"
                 break
@@ -615,238 +724,108 @@ def ingresar_paquete():
     finally:
         escribir_log("Función ingresar_paquete finalizada", nivel="INFO")
 
+
 def modificar():
-    seleccion2 = normalizar(input(
-        "Modificar SKU (1), Producto (2), Existencias (3), Precio (4), Categorías (5): "))
-    match seleccion2:
-
-        case "1" | "uno" | "modificar sku":
-            try:
-                sku_actual = int(input("Ingrese el SKU a modificar: "))
-                comprobar(sku_actual)
-                while comprobar(sku_actual) == False:
-                    print("Elija un producto: ")
-                for producto in productos:
-                    if producto["sku"] == sku_actual:
-                        print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                        print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                        confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                        if confirmar == "0":
-                            return eliminar()  # Llamar a función eliminar
-                        elif confirmar == "-1":
-                            return False
-                        elif confirmar != "1":
-                            return False
-                        
+    opcion = input("Ingrese el nombre del producto: ")
+    if comprobar(opcion):
+        producto_a_modificar = buscar_producto(opcion)
+        seleccion2 = ""
+        while seleccion2 != "-1":
+            seleccion2 = input("Modificar SKU (1), nombre (2), Existencias (3), Precio (4), Categorías (5): ")
+            match seleccion2:
+                
+                case "1" | "uno" | "modificar sku":
+                    try:
                         nuevo_sku = int(input("Ingrese el nuevo SKU: "))
-                        for prod in productos:
-                            if prod["sku"] == nuevo_sku and prod != producto:
-                                error_ya_existe("SKU", nuevo_sku)
-                                return False
-                        producto["sku"] = nuevo_sku
-                        guardar_memory(data)
-                        print("SKU modificado correctamente.")
-                        return True
-                error_no_encontrado("SKU", sku_actual)
-                return False
-            except ValueError:
-                error_valor_numerico("SKU")
-                return False
+                        producto_a_modificar["SKU"] = nuevo_sku
 
-        case "2" | "dos" | "modificar producto":
-            nombre_actual = input(
-                "Ingrese el nombre del producto a modificar: ")
-            for producto in productos:
-                if normalizar(producto["nombre"]) == normalizar(nombre_actual):
-                    print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                    print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                    confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                    if confirmar == "0":
-                        return eliminar()  # Llamar a función eliminar
-                    elif confirmar == "-1":
-                        return False
-                    elif confirmar != "1":
-                        return False
+                    except ValueError:
+                        error_valor_numerico("SKU")
+
+                case "2" | "dos" | "modificar nombre":
+                    nuevo_nombre = input("Ingrese el nuevo nombre del producto: ")
+                    producto_a_modificar["nombre_producto"] = nuevo_nombre
+
+                case "3" | "tres" | "modificar existencias":
+                    try:
+                        nuevas_existencias = int(input("Ingrese la cantidad de existencias del producto: "))
+                        producto_a_modificar["existencias"] = nuevas_existencias
+                    except ValueError:
+                        error_valor_numerico("existencias")
+
+                case "4" | "cuatro" | "modificar precio":
+                    try:
+                        nuevo_precio = float(input("Ingrese el nuevo precio del producto: "))
+                        producto_a_modificar["precio"] = nuevo_precio
+                    except ValueError:
+                        error_valor_numerico("precio")
+
+                case "5" | "cinco" | "modificar categorías":
+                    print("Ingrese las nuevas categorías del producto (separadas por comas, o Intro para omitir): ")
+                    categorias_actuales = producto_a_modificar.get("categorias")
+                    categorias_agregar = input().strip()
+                    if categorias_agregar:
+                        categorias_nuevas = [cat.strip() for cat in categorias_agregar.split(",") if cat.strip()]
+                        for cat in categorias_nuevas:
+                            if cat in producto_a_modificar.get("categorias"):
+                                categorias_nuevas.remove(cat)
+                    else:
+                        categorias_nuevas = []
+                    categorias_actuales = categorias_actuales + categorias_nuevas
                     
-                    nuevo_nombre = input(
-                        "Ingrese el nuevo nombre del producto: ")
-                    for prod in productos:
-                        if normalizar(prod["nombre"]) == normalizar(nuevo_nombre) and prod != producto:
-                            error_ya_existe("nombre", nuevo_nombre)
-                            return False
-                    producto["nombre"] = nuevo_nombre
-                    guardar_memory(data)
-                    print("Producto modificado correctamente.")
-                    return True
-            error_no_encontrado("Producto", nombre_actual)
-            return False
+                    
+                    print("Ingrese las categorías a borrar del producto (separadas por comas, o Intro para omitir): ")
+                    categorias_borrar = input().strip()
+                    if categorias_borrar:
+                        categorias_viejas = [cat.strip() for cat in categorias_borrar.split(",") if cat.strip()]
+                        for cat in categorias_actuales:
+                            if cat in categorias_viejas:
+                                categorias_actuales.remove(cat)
+                    else:
+                        categorias_viejas = []
 
-        case "3" | "tres" | "modificar existencias":
-            try:
-                sku = int(
-                    input("Ingrese el SKU del producto cuyas existencias desea modificar: "))
-                for producto in productos:
-                    if producto["sku"] == sku:
-                        print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                        print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                        confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                        if confirmar == "0":
-                            return eliminar()  # Llamar a función eliminar
-                        elif confirmar == "-1":
-                            return False
-                        elif confirmar != "1":
-                            return False
-                        
-                        nuevas_existencias = int(
-                            input("Ingrese las nuevas existencias: "))
-                        if nuevas_existencias <= 0:
-                            print("¡Error! Las existencias deben ser mayores a 0.")
-                            return False
-                        producto["existencias"] = nuevas_existencias
-                        guardar_memory(data)
-                        print("Existencias modificadas correctamente.")
-                        return True
-                error_no_encontrado("SKU", sku)
-                return False
-            except ValueError:
-                error_valor_numerico("existencias")
-                return False
-
-        case "4" | "cuatro" | "modificar precio":
-            try:
-                mod_busqueda = normalizar(
-                    input("Buscar por SKU (1) o Producto (2): "))
-                if mod_busqueda in ["sku", "1", "uno"]:
-                    sku = int(
-                        input("Ingrese el SKU del producto cuyo precio desea modificar: "))
-                    for producto in productos:
-                        if producto["sku"] == sku:
-                            print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                            print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                            confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                            if confirmar == "0":
-                                return eliminar()  # Llamar a función eliminar
-                            elif confirmar == "-1":
-                                return False
-                            elif confirmar != "1":
-                                return False
-                            
-                            nuevo_precio = float(
-                                input("Ingrese el nuevo precio: "))
-                            if nuevo_precio <= 0:
-                                print("¡Error! El precio debe ser mayor a 0.")
-                                return False
-                            producto["precio"] = nuevo_precio
-                            guardar_memory(data)
-                            print("Precio modificado correctamente.")
-                            return True
-                    error_no_encontrado("SKU", sku)
-                    return False
-
-                elif mod_busqueda in ["producto", "2", "dos"]:
-                    nombre = input(
-                        "Ingrese el nombre del producto cuyo precio desea modificar: ")
-                    for producto in productos:
-                        if normalizar(producto["nombre"]) == normalizar(nombre):
-                            print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                            print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                            confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                            if confirmar == "0":
-                                return eliminar()  # Llamar a función eliminar
-                            elif confirmar == "-1":
-                                return False
-                            elif confirmar != "1":
-                                return False
-                            
-                            nuevo_precio = float(
-                                input("Ingrese el nuevo precio: "))
-                            if nuevo_precio <= 0:
-                                print("Error! El precio debe ser mayor a 0.")
-                                return False
-                            producto["precio"] = nuevo_precio
-                            guardar_memory(data)
-                            print("Precio modificado correctamente.")
-                            return True
-                    error_no_encontrado("Producto", nombre)
-                    return False
-                else:
-                    print("Error! Opción no válida.")
-                    return False
-
-            except ValueError:
-                error_valor_numerico("precio")
-                return False
-
-        case "5" | "cinco" | "modificar categorías":
-            try:
-                sku = int(
-                    input("Ingrese el SKU del producto cuyas categorías desea modificar: "))
-                for producto in productos:
-                    if producto["sku"] == sku:
-                        print(f"Producto encontrado: {producto['nombre']} (SKU: {producto['sku']})")
-                        print(f"Existencias: {producto['existencias']}, Precio: ${producto['precio']:.2f}")
-                        confirmar = input("Presione 1 para modificar, 0 para eliminar, -1 para cancelar: ")
-                        if confirmar == "0":
-                            return eliminar()  # Llamar a función eliminar
-                        elif confirmar == "-1":
-                            return False
-                        elif confirmar != "1":
-                            return False
-                        
-                        print(
-                            f"Categorías actuales: {', '.join(producto['categorias']) if producto['categorias'] else 'Ninguna'}")
-                        print(
-                            "Ingrese las nuevas categorías (separadas por comas, o Intro para eliminar todas): ")
-                        categorias_input = input().strip()
-                        nuevas_categorias = [cat.strip() for cat in categorias_input.split(
-                            ",") if cat.strip()] if categorias_input else []
-
-                        producto["categorias"] = nuevas_categorias
-
-                        data["categorias"] = []
-                        for prod in productos:
-                            for cat in prod["categorias"]:
-                                if cat not in data["categorias"]:
-                                    data["categorias"].append(cat)
-
-                        guardar_memory(data)
-                        print("Categorías modificadas correctamente.")
-                        return True
-                error_no_encontrado("SKU", sku)
-                return False
-            except ValueError:
-                error_valor_numerico("SKU")
-                return False
-
-        case _:
-            print("¡Error! Opción no válida.")
-            return False
+                    producto_a_modificar["categorias"] = categorias_actuales
+                
+                case _:
+                    print("¡Error! Opción no válida.")
+            print(f"SKU: {producto_a_modificar.get('SKU')}, Nombre: {producto_a_modificar.get('nombre_producto')}, existencias: {producto_a_modificar.get('existencias')}, precio: {producto_a_modificar.get('precio'):.2f}, categorías: «{producto_a_modificar.get('categorias')}")
+        if producto_a_modificar != buscar_producto(opcion):
+            remplazar_modificar(opcion)
+            os.replace("temp.txt", "memoria.txt")
+            guardar_memory(producto_a_modificar)
+            guardar_categorias(leer_categorias(producto_a_modificar.get("categorias")))
+            actualizar_categorias()
+            
+    else:
+        print("Producto no encontrado.")
+    return
 
 
 def eliminar():
     producto = 0
     seleccion = 0
     eliminar = []
-    nombre_memoria = "memoria.txt"
-    nombre_temp = "temp.txt"
 
-    seleccion = input("Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
+    seleccion = input(
+        "Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
 
     if seleccion == "1":
         while producto != -1:
-            producto = int(input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
+            producto = int(
+                input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
 
             if comprobar(producto):
                 eliminar.append(producto)
             elif producto != -1:
-                print("producto no encontrado")
+                print("Producto no encontrado")
 
     elif seleccion == "2":
         while producto != "-1":
-            producto = input("Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
+            producto = input(
+                "Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
 
             if comprobar(producto):
-                eliminar.append(producto)
+                    eliminar.append(producto)
             elif producto != "-1":
                 print("Producto no encontrado")
     else:
@@ -854,22 +833,22 @@ def eliminar():
 
     remplazar(eliminar)
     print("Productos eliminados.")
-    os.replace(nombre_temp, nombre_memoria)
+    os.replace("memoria.txt", "memoria.txt")
     return
 
 
 def gestionar_categoria_modo(modo=None):
     data = cargar_memory()
-
+    arch_cat = open('categorias.txt', 'rt', encoding='UTF8')
+    
     if modo == "ver":
-        if data["categorias"]:
-            print("Categorías disponibles:")
-            for i, cat in enumerate(data["categorias"], 1):
-                print(f"  {i}. {cat}")
-            return True
-        else:
-            print("No hay categorías registradas.")
-            return False
+        for lineas in arch_cat:
+            linea = json.loads(lineas)
+            for categoria in linea.get("categorias"):
+                print(f"- {categoria}")
+        arch_cat.close()    
+        
+        
 
     elif modo == "agregar":
         nueva_categoria = input("Ingrese la nueva categoría: ")
@@ -1026,10 +1005,8 @@ def verificar_umbral_minimo():
         print("Productos por debajo del umbral mínimo:")
         for prod in productos_bajo_umbral:
             umbral = prod.get("umbral_minimo", 0)
-            print(
-                f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral: {umbral})")
-        escribir_log(
-            f"Alertas de umbral mínimo: {len(productos_bajo_umbral)} productos", nivel="WARNING")
+            print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral: {umbral})")
+        escribir_log(f"Alertas de umbral mínimo: {len(productos_bajo_umbral)} productos", nivel="WARNING")
     else:
         print("Todos los productos están por encima del umbral mínimo.")
 
@@ -1049,10 +1026,8 @@ def verificar_sobre_almacenamiento():
         print("Productos con sobre almacenamiento:")
         for prod in productos_sobre_almacenamiento:
             umbral_maximo = prod.get("umbral_maximo", 0)
-            print(
-                f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral máximo: {umbral_maximo})")
-        escribir_log(
-            f"Alertas de sobre almacenamiento: {len(productos_sobre_almacenamiento)} productos", nivel="WARNING")
+            print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral máximo: {umbral_maximo})")
+        escribir_log(f"Alertas de sobre almacenamiento: {len(productos_sobre_almacenamiento)} productos", nivel="WARNING")
     else:
         print("No hay productos con sobre almacenamiento.")
 
@@ -1084,16 +1059,13 @@ def configurar_umbral_minimo():
 
                 if nuevo_umbral == 0:
                     print("Umbral mínimo desactivado para este producto.")
-                    escribir_log(
-                        f"Umbral desactivado para SKU {sku}", nivel="INFO")
+                    escribir_log(f"Umbral desactivado para SKU {sku}", nivel="INFO")
                 else:
                     print(f"Umbral mínimo configurado en {nuevo_umbral}.")
-                    escribir_log(
-                        f"Umbral configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
+                    escribir_log(f"Umbral configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
 
                     if producto["existencias"] <= nuevo_umbral:
-                        print(
-                            "¡Advertencia! El producto está por debajo del nuevo umbral.")
+                        print("¡Advertencia! El producto está por debajo del nuevo umbral.")
 
                 return True
 
@@ -1130,16 +1102,13 @@ def configurar_umbral_maximo():
 
                 if nuevo_umbral == 0:
                     print("Umbral máximo desactivado para este producto.")
-                    escribir_log(
-                        f"Umbral máximo desactivado para SKU {sku}", nivel="INFO")
+                    escribir_log(f"Umbral máximo desactivado para SKU {sku}", nivel="INFO")
                 else:
                     print(f"Umbral máximo configurado en {nuevo_umbral}.")
-                    escribir_log(
-                        f"Umbral máximo configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
+                    escribir_log(f"Umbral máximo configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
 
                     if producto["existencias"] > nuevo_umbral:
-                        print(
-                            "¡Advertencia! El producto supera el nuevo umbral máximo.")
+                        print("¡Advertencia! El producto supera el nuevo umbral máximo.")
 
                 return True
 
@@ -1165,9 +1134,9 @@ def existencias_sin_stock():
     else:
         print("No hay productos sin existencias.")
 
-    escribir_log(
-        f"Consultados productos sin stock: {len(sin_stock)}", nivel="INFO")
+    escribir_log(f"Consultados productos sin stock: {len(sin_stock)}", nivel="INFO")
     return len(sin_stock) > 0
+
 
 def productos_por_categoria():
     data = cargar_memory()
@@ -1182,8 +1151,7 @@ def productos_por_categoria():
     print("=" * 40)
 
     for categoria in categorias:
-        productos_cat = [
-            prod for prod in productos if categoria in prod["categorias"]]
+        productos_cat = [prod for prod in productos if categoria in prod["categorias"]]
         total_existencias = sum(prod["existencias"] for prod in productos_cat)
         valor_categoria = sum(prod["precio"] * prod["existencias"]
                               for prod in productos_cat)
@@ -1194,61 +1162,6 @@ def productos_por_categoria():
         print(f"Valor: ${valor_categoria:,.2f}")
 
     escribir_log("Consultados productos por categoría", nivel="INFO")
-    return True
-
-
-def distribucion_precios():
-    data = cargar_memory()
-    productos = data["productos"]
-
-    if not productos:
-        print("No hay productos en el inventario.")
-        return False
-
-    precios = [prod["precio"] for prod in productos]
-
-    rangos = {
-        "$0 - $10": 0,
-        "$10 - $50": 0,
-        "$50 - $100": 0,
-        "$100 - $500": 0,
-        "$500 - $1.000": 0,
-        "$1.000 - $5.000": 0,
-        "$5.000 - $20.000": 0,
-        "$20.000 - $50.000": 0,
-        "$50.000 - $100.000": 0,
-        "+$100.000": 0,
-    }
-
-    for precio in precios:
-        if precio <= 10:
-            rangos["$0 - $10"] += 1
-        elif precio <= 50:
-            rangos["$10 - $50"] += 1
-        elif precio <= 100:
-            rangos["$50 - $100"] += 1
-        elif precio <= 500:
-            rangos["$100 - $500"] += 1
-        elif precio <= 1000:
-            rangos["$500 - $1.000"] += 1
-        elif precio <= 5000:
-            rangos["$1.000 - $5.000"] += 1
-        elif precio <= 20000:
-            rangos["$5.000 - $20.000"] += 1
-        elif precio <= 50000:
-            rangos["$20.000 - $50.000"] += 1
-        elif precio <= 100000:
-            rangos["$50.000 - $100.000"] += 1
-        else:
-            rangos["+$100.000"] += 1
-
-    print("Distribución de Precios")
-    print("=" * 40)
-    for rango, cantidad in rangos.items():
-        porcentaje = (cantidad / len(productos)) * 100
-        print(f"{rango}: {cantidad} productos ({porcentaje:.1f}%)")
-
-    escribir_log("Consultada distribución de precios", nivel="INFO")
     return True
 
 
@@ -1273,15 +1186,13 @@ def versionGS():
 
 
 def formatearDB():
-    confirmacion = normalizar(input(
-        "¿Desea formatear la base de datos? Esta acción es irreversible. (ingrese 'CONFIRMAR' para continuar): "))
+    confirmacion = normalizar(input("¿Desea formatear la base de datos? Esta acción es irreversible. (ingrese 'CONFIRMAR' para continuar): "))
 
     if confirmacion == "confirmar":
-        data = {
-            "productos": [],
-            "categorias": []
-        }
-        guardar_memory(data)
+        memoria = open(memoria.txt, 'w', encoding='UTF8') 
+        memoria.close()
+        categorias = open(categorias.txt, 'w', encoding='UTF8') 
+        categorias.close()
         print("Información: Base de datos formateada correctamente.")
         escribir_log("Base de datos formateada", nivel="CRITICAL")
         return True
@@ -1301,23 +1212,19 @@ def verificar_vencimientos_proximos():
         fecha_vencimiento = producto.get("fecha_vencimiento")
         if fecha_vencimiento and fecha_vencimiento != "No perecedero":
             try:
-                fecha_venc = datetime.strptime(
-                    fecha_vencimiento, "%Y-%m-%d").date()
+                fecha_venc = datetime.strptime(fecha_vencimiento, "%Y-%m-%d").date()
                 dias_restantes = (fecha_venc - hoy).days
 
                 if 0 <= dias_restantes <= 30:
-                    productos_proximos_vencer.append(
-                        (producto, dias_restantes))
+                    productos_proximos_vencer.append((producto, dias_restantes))
             except ValueError:
                 continue
 
     if productos_proximos_vencer:
         print("Productos próximos a vencer:")
         for producto, dias in productos_proximos_vencer:
-            print(
-                f"«{producto['nombre']}» (SKU: {producto['sku']}) - Vence en {dias} días - {producto['fecha_vencimiento']}")
-        escribir_log(
-            f"Alertas de vencimiento: {len(productos_proximos_vencer)} productos", nivel="WARNING")
+            print(f"«{producto['nombre']}» (SKU: {producto['sku']}) - Vence en {dias} días - {producto['fecha_vencimiento']}")
+        escribir_log(f"Alertas de vencimiento: {len(productos_proximos_vencer)} productos", nivel="WARNING")
     else:
         print("No hay productos próximos a vencer.")
 
@@ -1338,12 +1245,9 @@ def verificar_vencidos():
     if productos_vencidos:
         print("Productos vencidos:")
         for producto in productos_vencidos:
-            lote_info = f" - Lote: {producto.get('lote', 'Sin lote')}" if producto.get(
-                'lote') else ""
-            print(
-                f"«{producto['nombre']}» (SKU: {producto['sku']}){lote_info} - Vencido el {producto['fecha_vencimiento']}")
-        escribir_log(
-            f"Productos vencidos: {len(productos_vencidos)}", nivel="ERROR")
+            lote_info = f" - Lote: {producto.get('lote', 'Sin lote')}" if producto.get('lote') else ""
+            print(f"«{producto['nombre']}» (SKU: {producto['sku']}){lote_info} - Vencido el {producto['fecha_vencimiento']}")
+        escribir_log(f"Productos vencidos: {len(productos_vencidos)}", nivel="ERROR")
     else:
         print("No hay productos vencidos.")
 
@@ -1364,15 +1268,12 @@ def ver_productos_no_perecederos():
     if productos_no_perecederos:
         print("Productos no perecederos:")
         for producto in productos_no_perecederos:
-            print(
-                f"«{producto['nombre']}» (SKU: {producto['sku']}) - Existencias: {producto['existencias']}")
-        print(
-            f"Total: {len(productos_no_perecederos)} productos no perecederos")
+            print(f"«{producto['nombre']}» (SKU: {producto['sku']}) - Existencias: {producto['existencias']}")
+        print(f"Total: {len(productos_no_perecederos)} productos no perecederos")
     else:
         print("No hay productos no perecederos.")
 
-    escribir_log(
-        f"Consultados productos no perecederos: {len(productos_no_perecederos)}", nivel="INFO")
+    escribir_log(f"Consultados productos no perecederos: {len(productos_no_perecederos)}", nivel="INFO")
     return productos_no_perecederos
 
 
@@ -1385,21 +1286,17 @@ def configurar_alerta_vencimiento():
         for producto in data["productos"]:
             if producto["sku"] == sku:
                 print(f"Producto: {producto['nombre']}")
-                fecha_actual = producto.get(
-                    "fecha_vencimiento", "No configurada")
+                fecha_actual = producto.get("fecha_vencimiento", "No configurada")
                 print(f"Fecha de vencimiento actual: {fecha_actual}")
 
-                alerta_actual = producto.get(
-                    "dias_alerta_vencimiento", "No configurada")
+                alerta_actual = producto.get("dias_alerta_vencimiento", "No configurada")
                 print(f"Días de alerta actual: {alerta_actual}")
 
                 if not fecha_actual or fecha_actual == "No perecedero":
-                    print(
-                        "¡Error! Este producto no tiene fecha de vencimiento configurada.")
+                    print("¡Error! Este producto no tiene fecha de vencimiento configurada.")
                     return False
 
-                nuevos_dias = int(
-                    input("Ingrese los días de anticipación para la alerta: "))
+                nuevos_dias = int(input("Ingrese los días de anticipación para la alerta: "))
 
                 if nuevos_dias < 0:
                     print("¡Error! Los días no pueden ser negativos.")
@@ -1408,10 +1305,8 @@ def configurar_alerta_vencimiento():
                 producto["dias_alerta_vencimiento"] = nuevos_dias
                 guardar_memory(data)
 
-                print(
-                    f"Alerta configurada: {nuevos_dias} días de anticipación.")
-                escribir_log(
-                    f"Alerta de vencimiento configurada para SKU {sku}: {nuevos_dias} días", nivel="INFO")
+                print(f"Alerta configurada: {nuevos_dias} días de anticipación.")
+                escribir_log(f"Alerta de vencimiento configurada para SKU {sku}: {nuevos_dias} días", nivel="INFO")
                 return True
 
         error_no_encontrado("SKU", sku)
@@ -1435,13 +1330,11 @@ def verificar_alertas_vencimiento():
 
         if fecha_vencimiento and fecha_vencimiento != "No perecedero":
             try:
-                fecha_venc = datetime.strptime(
-                    fecha_vencimiento, "%Y-%m-%d").date()
+                fecha_venc = datetime.strptime(fecha_vencimiento, "%Y-%m-%d").date()
                 dias_restantes = (fecha_venc - hoy).days
 
                 if 0 <= dias_restantes <= dias_alerta:
-                    productos_con_alerta.append(
-                        (producto, dias_restantes, dias_alerta))
+                    productos_con_alerta.append((producto, dias_restantes, dias_alerta))
             except ValueError:
                 continue
 
@@ -1453,8 +1346,7 @@ def verificar_alertas_vencimiento():
             print(f"Alerta configurada: {dias_alerta} días de anticipación")
             print(f"Fecha: {producto['fecha_vencimiento']}")
             print()
-        escribir_log(
-            f"Alertas de vencimiento personalizadas: {len(productos_con_alerta)} productos", nivel="WARNING")
+        escribir_log(f"Alertas de vencimiento personalizadas: {len(productos_con_alerta)} productos", nivel="WARNING")
     else:
         print("No hay alertas de vencimiento activas.")
 
@@ -1481,22 +1373,19 @@ def ver_todas_alertas_vencimiento():
     if productos_con_alerta:
         print("Productos con alertas de vencimiento configuradas:")
         for producto, dias_alerta in productos_con_alerta:
-            print(
-                f"«{producto['nombre']}» (SKU: {producto['sku']}) - {dias_alerta} días de anticipación")
+            print(f"«{producto['nombre']}» (SKU: {producto['sku']}) - {dias_alerta} días de anticipación")
         print()
 
     if productos_sin_alerta:
         print("Productos con fecha de vencimiento pero sin alerta configurada:")
         for producto in productos_sin_alerta:
-            print(
-                f"«{producto['nombre']}» (SKU: {producto['sku']}) - Fecha: {producto['fecha_vencimiento']}")
+            print(f"«{producto['nombre']}» (SKU: {producto['sku']}) - Fecha: {producto['fecha_vencimiento']}")
         print()
 
     if not productos_con_alerta and not productos_sin_alerta:
         print("No hay productos con fecha de vencimiento configurada.")
 
-    escribir_log(
-        "Consultadas configuraciones de alertas de vencimiento", nivel="INFO")
+    escribir_log("Consultadas configuraciones de alertas de vencimiento", nivel="INFO")
     return productos_con_alerta
 
 
@@ -1539,8 +1428,7 @@ def buscar_por_lote():
 
     lote_buscar = input("Ingrese el número de lote a buscar: ").strip()
 
-    productos_lote = [prod for prod in productos if prod.get(
-        "lote", "").lower() == lote_buscar.lower()]
+    productos_lote = [prod for prod in productos if prod.get("lote", "").lower() == lote_buscar.lower()]
 
     if productos_lote:
         print(f"Productos del lote '{lote_buscar}':")
@@ -1559,35 +1447,6 @@ def buscar_por_lote():
 
     escribir_log(f"Búsqueda de lote: {lote_buscar}", nivel="INFO")
     return len(productos_lote) > 0
-
-
-def configurar_metodo_salida():
-    """Configura el método de salida de productos (FIFO/LIFO)"""
-    data = cargar_memory()
-
-    print("""
-Métodos de salida disponibles:
-1. FIFO (Primero en Entrar, Primero en Salir)
-2. LIFO (Último en Entrar, Primero en Salir)
-""")
-
-    metodo = input("Seleccione el método (1/2): ").strip()
-
-    metodos = {
-        "1": "FIFO",
-        "2": "LIFO"
-    }
-
-    if metodo in metodos:
-        data["metodo_salida"] = metodos[metodo]
-        guardar_memory(data)
-        print(f"Método de salida configurado como: {metodos[metodo]}")
-        escribir_log(
-            f"Método de salida configurado: {metodos[metodo]}", nivel="INFO")
-        return True
-    else:
-        print("¡Error! Opción no válida.")
-        return False
 
 
 def ver_proximo_vencer_lotes():
@@ -1644,80 +1503,56 @@ def es_producto_vencido(producto):
 def ver_sin_vencimiento_registrado():
     data = cargar_memory()
     productos = data["productos"]
-    
-    productos_sin_registro = [prod for prod in productos if prod.get("fecha_vencimiento") == "Sin vencimiento registrado"]
-    
+
+    productos_sin_registro = [prod for prod in productos if prod.get(
+        "fecha_vencimiento") == "Sin vencimiento registrado"]
+
     if productos_sin_registro:
         print("Productos sin vencimiento registrado:")
         for producto in productos_sin_registro:
-            print(f"«{producto['nombre']}» (SKU: {producto['sku']}) - Existencias: {producto['existencias']}")
+            print(
+            f"«{producto['nombre']}» (SKU: {producto['sku']}) - Existencias: {producto['existencias']}")
         print(f"Total: {len(productos_sin_registro)} productos")
     else:
         print("No hay productos sin vencimiento registrado.")
-    
+
     escribir_log(f"Consultados productos sin vencimiento registrado: {len(productos_sin_registro)}", nivel="INFO")
     return productos_sin_registro
 
 
-def obtener_producto_por_metodo_salida(productos):
-    data = cargar_memory()
-    metodo = data.get("metodo_salida", "FIFO")
-
-    if not productos:
-        return None
-
-    if metodo == "LIFO":
-        return productos[-1]
-    else:
-        productos_ordenados = sorted(
-            productos, key=lambda x: x.get("fecha_ingreso", ""))
-        return productos_ordenados[0] if productos_ordenados else None
-
-
-def generador_de_sku():
-    data = cargar_memory()
-    productos = data["productos"]
-    if productos:
-        max_sku = max(producto["sku"] for producto in productos)
-        return max_sku + 1
-    else:
-        return 1
-
-
 def gestionar_proveedores():
     data = cargar_memory()
-    
+
     print("1. Ver todos los proveedores")
     print("2. Buscar productos por proveedor")
     print("3. Volver")
-    
+
     opcion = input("Seleccione una opción: ").strip()
-    
+
     if opcion == "1":
         proveedores = set()
         for producto in data["productos"]:
             proveedores.add(producto.get("proveedor", "Sin proveedor registrado"))
-        
+
         if proveedores:
             print("Proveedores en el sistema:")
             for i, prov in enumerate(sorted(proveedores), 1):
                 print(f"  {i}. {prov}")
         else:
             print("No hay proveedores registrados.")
-            
+
     elif opcion == "2":
         proveedor_buscar = input("Ingrese el proveedor a buscar: ").strip()
         productos_proveedor = [prod for prod in data["productos"] if prod.get("proveedor", "").lower() == proveedor_buscar.lower()]
-        
+
         if productos_proveedor:
             print(f"Productos del proveedor '{proveedor_buscar}':")
             for prod in productos_proveedor:
                 print(f"  - {prod['nombre']} (SKU: {prod['sku']}) - Existencias: {prod['existencias']}")
         else:
             print(f"No se encontraron productos del proveedor '{proveedor_buscar}'")
-    
-    return True
 
+    return True
 
 def exit_program():
     print("¡Gracias por usar genzaloSTORAGE!")

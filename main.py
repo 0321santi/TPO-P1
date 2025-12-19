@@ -1,14 +1,13 @@
+
 from funcion import (
     normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo,
     buscar, escribir_log, verificar_umbral_minimo, configurar_umbral_minimo,
-    existencias_sin_stock, productos_por_categoria, distribucion_precios,
-    versionGS, formatearDB, cargar_memory, ingresar_paquete, 
-    configurar_umbral_maximo, verificar_vencimientos_proximos, configurar_alerta_vencimiento, 
-    verificar_vencidos, ver_productos_no_perecederos, verificar_alertas_vencimiento, 
-    ver_todas_alertas_vencimiento, ver_todos_lotes, buscar_por_lote, configurar_metodo_salida, 
-    ver_proximo_vencer_lotes, generador_de_sku, verificar_sobre_almacenamiento,
-    ver_sin_vencimiento_registrado, gestionar_proveedores, limpiarPantalla
-)
+    existencias_sin_stock, productos_por_categoria, versionGS, formatearDB, 
+    cargar_memory, ingresar_paquete, configurar_umbral_maximo, 
+    verificar_vencimientos_proximos, configurar_alerta_vencimiento, verificar_vencidos, 
+    ver_productos_no_perecederos, verificar_alertas_vencimiento, ver_todas_alertas_vencimiento, 
+    ver_todos_lotes, buscar_por_lote, ver_proximo_vencer_lotes, verificar_sobre_almacenamiento, ver_sin_vencimiento_registrado, 
+    gestionar_proveedores, limpiarPantalla, cargar_categorias)
 
 
 def menu_principal():
@@ -16,6 +15,7 @@ def menu_principal():
     print(f"""╔══════════════════════════════╗
 ║     SISTEMA DE INVENTARIO    ║
 ╠══════════════════════════════╣
+║ 0. Ingreso / Egreso          ║
 ║ 1. SKU                       ║
 ║ 2. Categorías                ║
 ║ 3. Buscar                    ║
@@ -50,8 +50,9 @@ def menu_categorias():
 ║ 2. Eliminar categoría        ║
 ║ 3. Modificar categoría       ║
 ║ 4. Ver todas las categorías  ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
+║ 5. Ver prod. por categoría   ║
+║ 6. Volver al menú principal  ║
+║ 7. Salir                     ║
 ╚══════════════════════════════╝""")
 
 
@@ -90,13 +91,11 @@ def menu_otros():
     print(f"""╔══════════════════════════════╗
 ║       OTRAS OPCIONES         ║
 ╠══════════════════════════════╣
-║ 1. Estadísticas              ║
-║ 2. Versión genzaloSTORAGE    ║
-║ 3. Formatear base de datos   ║
-║ 4. Volver al menú principal  ║
-║ 5. Salir                     ║
+║ 1. Versión genzaloSTORAGE    ║
+║ 2. Formatear base de datos   ║
+║ 3. Volver al menú principal  ║
+║ 4. Salir                     ║
 ╚══════════════════════════════╝""")
-
 
 def menu_vencimientos():
     limpiarPantalla()
@@ -151,10 +150,15 @@ try:
         limpiarPantalla()
         menu_principal()
         cargar_memory()
+        cargar_categorias()
         seleccion = input("Seleccione una opción: ")
         continuar = 0
 
         match normalizar(seleccion):
+            case "0" | "cero" | "ingreso" | "egreso":
+                print("Ingrese el SKU o nombre del producto para registrar ingreso/egreso.")
+                
+
             case "1" | "uno" | "sku":
                 while True:
                     menu_sku()
@@ -164,7 +168,8 @@ try:
                         case "1" | "uno" | "agregar" | "agregar sku":
                             while continuar != "-1":
                                 ingresar()
-                                continuar = input("Ingrese cualquier valor para seguir o ingrese -1 para salir: ")
+                                continuar = input(
+                                    "Ingrese cualquier valor para seguir o ingrese -1 para salir: ")
 
                         case "2" | "dos" | "agregar paquete" | "paquete":
                             while continuar != -1:
@@ -212,25 +217,28 @@ try:
                             input("Presione Intro para continuar.")
 
                         case "5" | "cinco" | "volver" | "menu principal":
+                            productos_por_categoria("ver")
+                            input("Presione Intro para continuar.")
+
+                        case "6" | "seis" | "volver" | "menu principal":
                             break
 
-                        case "6" | "seis" | "salir":
+                        case "7" | "siete" | "salir":
                             exit_program()
 
                         case _:
                             print("¡Error! Opción no válida.")
                             input("Presione Intro para continuar.")
 
-
             case "3" | "tres" | "buscar":
                 while True:
                     limpiarPantalla()
                     menu_buscar()
                     buscar()
-                    seguir = input("\nPresione 1 para volver al menú principal o Enter para seguir buscando: ")
+                    seguir = input(
+                        "\nPresione 1 para volver al menú principal o Enter para seguir buscando: ")
                     if seguir == "1":
                         break
-
 
             case "4" | "cuatro" | "umbral":
                 while True:
@@ -283,7 +291,7 @@ try:
                             input("Presione Intro para continuar.")
 
                         case "3" | "tres" | "configurar metodo":
-                            configurar_metodo_salida()
+                            "configurar_metodo_salida()"
                             input("Presione Intro para continuar.")
 
                         case "4" | "cuatro" | "proximo vencer":
@@ -342,47 +350,18 @@ try:
                     opcion_otros = input("Seleccione una opción: ")
 
                     match normalizar(opcion_otros):
-                        case "1" | "uno" | "estadisticas":
-                            while True:
-                                menu_estadisticas()
-                                opcion_estad = input("Seleccione una opción: ")
-
-                                match normalizar(opcion_estad):
-                                    case "1" | "uno" | "resumen":
-                                        from funcion import resumen_estadisticas
-                                        resumen_estadisticas()
-                                        input("Presione Intro para continuar.")
-
-                                    case "2" | "dos" | "categorias":
-                                        productos_por_categoria()
-                                        input("Presione Intro para continuar.")
-
-                                    case "3" | "tres" | "distribucion":
-                                        distribucion_precios()
-                                        input("Presione Intro para continuar.")
-
-                                    case "4" | "cuatro" | "volver":
-                                        break
-
-                                    case "5" | "cinco" | "salir":
-                                        exit_program()
-
-                                    case _:
-                                        print("¡Error! Opción no válida.")
-                                        input("Presione Intro para continuar.")
-
-                        case "2" | "dos" | "version":
+                        case "1" | "uno" | "version":
                             versionGS()
                             input("Presione Intro para continuar.")
 
-                        case "3" | "tres" | "formatear":
+                        case "2" | "dos" | "formatear":
                             formatearDB()
                             input("Presione Intro para continuar.")
 
-                        case "4" | "cuatro" | "volver":
+                        case "3" | "tres" | "volver":
                             break
 
-                        case "5" | "cinco" | "salir":
+                        case "4" | "cuatro" | "salir":
                             exit_program()
 
             case "8" | "ocho" | "salir":
