@@ -91,7 +91,31 @@ def comprobar(tag_nuevo):  # Retornara TRUE si se encuentra una coincidencia
         f.close()
     return encontrado
 
+def eliminar_categorias_de_producto(actuales, borrar): # Recursividad
+    if len(actuales) == 0:
+        return []
+    primero = actuales[0]
+    siguientes = actuales[1:]
+    if primero in borrar:
+        return eliminar_categorias_de_producto(siguientes, borrar)
+    else:
+        return [primero] + eliminar_categorias_de_producto(siguientes, borrar)
 
+def eliminar_categorias(borrar):
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'at', encoding='UTF8')
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if borrar in linea.get('categorias'):
+                linea['categorias'].remove(borrar)
+                temp.write(json.dumps(linea) + '\n')
+            else:
+                temp.write(json.dumps(linea) + '\n')
+    finally:
+        arch.close()
+        temp.close()
+    return
 
 def remplazar(productos):
     try:
@@ -106,6 +130,7 @@ def remplazar(productos):
         temp.close()
     return
 
+
 def actualizar_categorias():
     try:
         mem_arch = open('memoria.txt', 'rt', encoding='UTF8')
@@ -113,13 +138,14 @@ def actualizar_categorias():
         temp = open('temp.txt', 'at', encoding='UTF8')
         for cat in cat_arch:
             existe = False
+            mem_arch.seek(0)
             for lineas in mem_arch:
                 linea = json.loads(lineas)
-                if normalizar(cat) in linea.get("categorias"):
+                if cat.strip() in linea.get("categorias"):
                     existe = True
                     break
             if existe:
-                temp.write(cat + '\n')
+                temp.write(cat)
     except FileNotFoundError as e:
         print("Error: ", e)
     finally:
@@ -135,7 +161,7 @@ def remplazar_modificar(productos):
         arch = open('memoria.txt', 'rt', encoding='UTF8')
         temp = open('temp.txt', 'at', encoding='UTF8')
         for lineas in arch:
-            linea = json.loads(normalizar(lineas))
+            linea = json.loads(lineas.strip())
             if linea.get('nombre_producto') != productos:
                 temp.write(json.dumps(linea) + '\n')
     finally:
@@ -165,7 +191,6 @@ def buscar_producto(nombre):
         for lineas in arch:
             linea = json.loads(lineas)
             if linea.get("nombre_producto") == consulta_norm:
-                print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                 break
     except FileNotFoundError:
         print("no")
@@ -174,21 +199,17 @@ def buscar_producto(nombre):
     return linea
 
 def similitud_numerica(num1, num2):
-    """Similitud específica para números/SKU"""
     str1 = str(num1)
     str2 = str(num2)
 
-    # Similitud por coincidencia de inicio (como la función actual)
     for i in range(min(len(str1), len(str2)), 0, -1):
         if str1[:i] == str2[:i]:
             return i / max(len(str1), len(str2))
 
-    # Similitud por diferencia relativa (nueva)
     try:
         n1 = int(num1)
         n2 = int(num2)
         diferencia = abs(n1 - n2)
-        # Normalizar: 1/(1+diferencia) da valores entre 0 y 1
         return 1 / (1 + diferencia / max(1, n1))
     except:
         return 0
@@ -224,8 +245,7 @@ def buscar():
                 for lineas in arch:
                     linea = json.loads(lineas)
                     if linea.get("SKU") == sku:
-                        print(
-                            f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
+                        print(f"El producto «{linea.get('nombre_producto')}» tiene SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f} y categorías: «{linea.get('categorias')}».")
                         encontrado = True
                         break
 
@@ -240,8 +260,7 @@ def buscar():
                 if resultados:
                     print("SKU exacto no encontrado. ¿Quizá quiso decir?:")
                     for sim, prod in sorted(resultados, reverse=True):
-                        categorias_str = ", ".join(prod.get("categorias")) if prod.get(
-                            "categorias") else "Sin categorías"
+                        categorias_str = ", ".join(prod.get("categorias")) if prod.get("categorias") else "Sin categorías"
                         print(f"«{prod.get('nombre_producto')}», SKU Nº {prod.get('SKU')}, {prod.get('existencias')} existencia(s), precio de ${prod.get('precio'):.2f}, categorías: «{prod.get('categorias')}»)")
 
                 arch.close()
@@ -309,10 +328,8 @@ def buscar():
                             print(f"«{linea.get('nombre_producto')}», SKU Nº {linea.get('SKU')}, {linea.get('existencias')} existencia(s), precio de ${linea.get('precio'):.2f}, categorías: «{linea.get('categorias')}»)")
 
                 elif modo in ("rango", "4"):
-                    lo = int(
-                        input("Ingrese la cantidad mínima del rango: "))
-                    hi = int(
-                        input("Ingrese la cantidad máxima del rango: "))
+                    lo = int(input("Ingrese la cantidad mínima del rango: "))
+                    hi = int(input("Ingrese la cantidad máxima del rango: "))
                     if lo > hi:
                         lo, hi = hi, lo
                     for lineas in arch:
@@ -330,8 +347,7 @@ def buscar():
                 arch.close()
 
         case "4" | "cuatro" | "buscar precio":
-            modo = normalizar(
-                input("Buscar por precio: 'igual', 'mayor', 'menor' o 'rango': "))
+            modo = normalizar(input("Buscar por precio: 'igual', 'mayor', 'menor' o 'rango': "))
             arch = open('memoria.txt', 'rt', encoding='UTF8')
             try:
                 if modo in ("igual", "1", "exacto"):
@@ -438,21 +454,17 @@ def ingresar():
         else:
             categorias = []
 
-        umbral_minimo = int(
-            input("Ingrese el umbral mínimo de existencias (-1 para desactivar): "))
+        umbral_minimo = int(input("Ingrese el umbral mínimo de existencias (-1 para desactivar): "))
         while umbral_minimo < -1:
             umbral_minimo = int(input("¡Error! Ingrese un número válido: "))
 
-        umbral_maximo = int(
-            input("Ingrese el umbral máximo de existencias (-1 para desactivar): "))
+        umbral_maximo = int(input("Ingrese el umbral máximo de existencias (-1 para desactivar): "))
         while umbral_maximo < -1 or (umbral_maximo != -1 and umbral_maximo < umbral_minimo):
-            umbral_maximo = int(input(
-                "¡Error! Ingrese un número válido (debe ser -1 o mayor/igual al mínimo): "))
+            umbral_maximo = int(input("¡Error! Ingrese un número válido (debe ser -1 o mayor/igual al mínimo): "))
 
         fecha_vencimiento = None
         while True:
-            fecha_input = input(
-                "Ingrese fecha de vencimiento (DD-MM-AAAA), 'no' para no perecedero, o -1 para no añadir: ").strip()
+            fecha_input = input("Ingrese fecha de vencimiento (DD-MM-AAAA), 'no' para no perecedero, o -1 para no añadir: ").strip()
 
             if fecha_input.lower() in ["no", "n"]:
                 fecha_vencimiento = "No perecedero"
@@ -473,14 +485,12 @@ def ingresar():
 
         lote = None
         while True:
-            lote_input = input(
-                "Ingrese el número de lote (-1 para no añadir): ").strip()
+            lote_input = input("Ingrese el número de lote (-1 para no añadir): ").strip()
             if lote_input == "-1":
                 lote = "sin lote"
                 break
             elif lote_input == "":
-                print(
-                    "¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
+                print("¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
                 continue
             else:
                 lote = lote_input
@@ -488,8 +498,7 @@ def ingresar():
 
         proveedor = None
         while True:
-            proveedor_input = input(
-                "Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
+            proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
                 proveedor = "Fabricacion Propia"
                 break
@@ -521,8 +530,7 @@ def ingresar():
 
     except ValueError:
         print("¡Error! Ingrese valores numéricos válidos para SKU, existencias, precio y umbral.")
-        escribir_log(
-            "Error al ingresar valores numéricos en ingreso de producto.", nivel="ERROR")
+        escribir_log("Error al ingresar valores numéricos en ingreso de producto.", nivel="ERROR")
         return False
 
 
@@ -543,8 +551,7 @@ def ingresar_paquete():
 
         unidades_por_paquete = int(input("Ingrese unidades por paquete: "))
         while unidades_por_paquete <= 0:
-            unidades_por_paquete = int(
-                input("¡Error! Ingrese un numero válido.: "))
+            unidades_por_paquete = int(input("¡Error! Ingrese un numero válido.: "))
 
         existencias = paquetes * unidades_por_paquete
 
@@ -563,14 +570,12 @@ def ingresar_paquete():
         if tipo_precio == "1":
             precio_paquete = float(input("Ingrese el precio por paquete: "))
             while precio_paquete <= 0:
-                precio_paquete = float(
-                    input("¡Error! Ingrese un numero válido.: "))
+                precio_paquete = float(input("¡Error! Ingrese un numero válido.: "))
             precio_unitario = precio_paquete / unidades_por_paquete
         else:
             precio_unitario = float(input("Ingrese el precio por unidad: "))
             while precio_unitario <= 0:
-                precio_unitario = float(
-                    input("¡Error! Ingrese un numero válido.: "))
+                precio_unitario = float(input("¡Error! Ingrese un numero válido.: "))
             precio_paquete = precio_unitario * unidades_por_paquete
 
         print(
@@ -591,27 +596,21 @@ def ingresar_paquete():
         tipo_umbral = input("Seleccione opción (1/2): ")
 
         if tipo_umbral == "1":
-            umbral_minimo = int(
-                input("Ingrese el umbral mínimo de paquetes (-1 para desactivar): "))
+            umbral_minimo = int(input("Ingrese el umbral mínimo de paquetes (-1 para desactivar): "))
             while umbral_minimo < -1:
-                umbral_minimo = int(
-                    input("¡Error! Ingrese un número válido: "))
+                umbral_minimo = int(input("¡Error! Ingrese un número válido: "))
 
-            umbral_maximo = int(
-                input("Ingrese el umbral máximo de paquetes (-1 para desactivar): "))
+            umbral_maximo = int(input("Ingrese el umbral máximo de paquetes (-1 para desactivar): "))
             while umbral_maximo < -1:
-                umbral_maximo = int(
-                    input("¡Error! Ingrese un número válido: "))
+                umbral_maximo = int(input("¡Error! Ingrese un número válido: "))
 
             tipo_control = "paquetes"
         else:
-            umbral_minimo = int(
-                input("Ingrese el umbral mínimo de unidades (-1 para desactivar): "))
+            umbral_minimo = int(input("Ingrese el umbral mínimo de unidades (-1 para desactivar): "))
             while umbral_minimo < -1:
                 umbral_minimo = int(input("Error! Ingrese un número válido: "))
 
-            umbral_maximo = int(
-                input("Ingrese el umbral máximo de unidades (-1 para desactivar): "))
+            umbral_maximo = int(input("Ingrese el umbral máximo de unidades (-1 para desactivar): "))
             while umbral_maximo < -1:
                 umbral_maximo = int(input("Error! Ingrese un número válido: "))
 
@@ -619,8 +618,7 @@ def ingresar_paquete():
 
         fecha_vencimiento = None
         while True:
-            fecha_input = input(
-                "Ingrese fecha de vencimiento (DD-MM-AAAA), 'no' para no perecedero, o -1 para no añadir: ").strip()
+            fecha_input = input("Ingrese fecha de vencimiento (DD-MM-AAAA), 'no' para no perecedero, o -1 para no añadir: ").strip()
 
             if fecha_input.lower() in ["no", "n"]:
                 fecha_vencimiento = "No perecedero"
@@ -641,14 +639,12 @@ def ingresar_paquete():
 
         lote = None
         while True:
-            lote_input = input(
-                "Ingrese el número de lote (-1 para no añadir): ").strip()
+            lote_input = input("Ingrese el número de lote (-1 para no añadir): ").strip()
             if lote_input == "-1":
                 lote = "sin lote"
                 break
             elif lote_input == "":
-                print(
-                    "¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
+                print("¡Error! El lote es obligatorio. Ingrese un lote o -1 para no añadir.")
                 continue
             else:
                 lote = lote_input
@@ -656,8 +652,7 @@ def ingresar_paquete():
 
         proveedor = None
         while True:
-            proveedor_input = input(
-                "Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
+            proveedor_input = input("Ingrese proveedor ('PROPIA' para Fabricación Propia, -1 para no añadir): ").strip()
             if proveedor_input.upper() == "PROPIA":
                 proveedor = "Fabricacion Propia"
                 break
@@ -713,13 +708,11 @@ def ingresar_paquete():
 
     except ValueError:
         print("¡Error! Ingrese valores numéricos válidos para SKU, paquetes, unidades y precio.")
-        escribir_log(
-            "Error al ingresar valores numéricos en ingreso de paquete.", nivel="ERROR")
+        escribir_log("Error al ingresar valores numéricos en ingreso de paquete.", nivel="ERROR")
         return False
     except Exception as e:
         print(f"¡Error inesperado! {e}")
-        escribir_log(
-            f"Error inesperado en ingresar_paquete: {e}", nivel="ERROR")
+        escribir_log(f"Error inesperado en ingresar_paquete: {e}", nivel="ERROR")
         return False
     finally:
         escribir_log("Función ingresar_paquete finalizada", nivel="INFO")
@@ -729,11 +722,10 @@ def modificar():
     opcion = input("Ingrese el nombre del producto: ")
     if comprobar(opcion):
         producto_a_modificar = buscar_producto(opcion)
-        seleccion2 = ""
-        while seleccion2 != "-1":
+        print(f"SKU: {producto_a_modificar.get('SKU')}, Nombre: {producto_a_modificar.get('nombre_producto')}, existencias: {producto_a_modificar.get('existencias')}, precio: {producto_a_modificar.get('precio'):.2f}, categorías: «{producto_a_modificar.get('categorias')}»")
+        while True:
             seleccion2 = input("Modificar SKU (1), nombre (2), Existencias (3), Precio (4), Categorías (5): ")
             match seleccion2:
-                
                 case "1" | "uno" | "modificar sku":
                     try:
                         nuevo_sku = int(input("Ingrese el nuevo SKU: "))
@@ -778,16 +770,16 @@ def modificar():
                     categorias_borrar = input().strip()
                     if categorias_borrar:
                         categorias_viejas = [cat.strip() for cat in categorias_borrar.split(",") if cat.strip()]
-                        for cat in categorias_actuales:
-                            if cat in categorias_viejas:
-                                categorias_actuales.remove(cat)
+                        print(categorias_borrar)
+                        print(categorias_actuales)
+                        eliminar_categorias_de_producto(categorias_actuales, categorias_viejas)
                     else:
                         categorias_viejas = []
 
-                    producto_a_modificar["categorias"] = categorias_actuales
+                    producto_a_modificar["categorias"] = eliminar_categorias_de_producto(categorias_actuales, categorias_viejas)
                 
                 case _:
-                    print("¡Error! Opción no válida.")
+                    break
             print(f"SKU: {producto_a_modificar.get('SKU')}, Nombre: {producto_a_modificar.get('nombre_producto')}, existencias: {producto_a_modificar.get('existencias')}, precio: {producto_a_modificar.get('precio'):.2f}, categorías: «{producto_a_modificar.get('categorias')}")
         if producto_a_modificar != buscar_producto(opcion):
             remplazar_modificar(opcion)
@@ -806,13 +798,11 @@ def eliminar():
     seleccion = 0
     eliminar = []
 
-    seleccion = input(
-        "Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
+    seleccion = input("Ingrese 1 si quiere eliminar segun SKU\nIngrese 2 para eliminar segun nombre\nIngrese -1 para salir: ")
 
     if seleccion == "1":
         while producto != -1:
-            producto = int(
-                input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
+            producto = int(input("Ingrese el SKU del producto que quiera borrar o -1 para terminar: "))
 
             if comprobar(producto):
                 eliminar.append(producto)
@@ -821,8 +811,7 @@ def eliminar():
 
     elif seleccion == "2":
         while producto != "-1":
-            producto = input(
-                "Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
+            producto = input("Ingrese el nombre del producto que quiera borrar o -1 para terminar: ")
 
             if comprobar(producto):
                     eliminar.append(producto)
@@ -833,230 +822,111 @@ def eliminar():
 
     remplazar(eliminar)
     print("Productos eliminados.")
-    os.replace("memoria.txt", "memoria.txt")
+    os.replace("temp.txt", "memoria.txt")
+    actualizar_categorias()
     return
 
 
 def gestionar_categoria_modo(modo=None):
-    data = cargar_memory()
-    arch_cat = open('categorias.txt', 'rt', encoding='UTF8')
-    
     if modo == "ver":
-        for lineas in arch_cat:
-            linea = json.loads(lineas)
-            for categoria in linea.get("categorias"):
-                print(f"- {categoria}")
-        arch_cat.close()    
-        
-        
-
-    elif modo == "agregar":
-        nueva_categoria = input("Ingrese la nueva categoría: ")
-        if nueva_categoria in data["categorias"]:
-            error_ya_existe("categoría", nueva_categoria)
-            return False
-        data["categorias"].append(nueva_categoria)
-        guardar_memory(data)
-        print("Categoría ingresada correctamente.")
-        return True
+        arch_cat = open('categorias.txt', 'rt', encoding='UTF8')
+        for cat in arch_cat:
+            print("Categorias: ")
+            print(cat.strip())
+        arch_cat.close()
 
     elif modo == "eliminar":
-        if not data["categorias"]:
-            print("No hay categorías para eliminar.")
-            return False
+        el = input("Ingrese la categoria a eliminar (esto borrara todas las instancias de esta categoria): ")
+        eliminar_categorias(el)
+        os.replace("temp.txt", "memoria.txt")
 
-        print("Categorías disponibles:")
-        for i, cat in enumerate(data["categorias"], 1):
-            print(f"  {i}. {cat}")
-
-        categoria_eliminar = input("Ingrese la categoría a eliminar: ")
-        if categoria_eliminar in data["categorias"]:
-            data["categorias"].remove(categoria_eliminar)
-            for producto in data["productos"]:
-                if categoria_eliminar in producto["categorias"]:
-                    producto["categorias"].remove(categoria_eliminar)
-            guardar_memory(data)
-            print("Categoría eliminada correctamente.")
-            return True
-        else:
-            error_no_encontrado("Categoría", categoria_eliminar)
-            return False
-
-    elif modo == "modificar":
-        if not data["categorias"]:
-            print("No hay categorías para modificar.")
-            return False
-
-        print("Categorías disponibles:")
-        for i, cat in enumerate(data["categorias"], 1):
-            print(f"  {i}. {cat}")
-
-        categoria_actual = input("Ingrese la categoría a modificar: ")
-        if categoria_actual in data["categorias"]:
-            nueva_categoria = input("Ingrese la nueva categoría: ")
-            data["categorias"].remove(categoria_actual)
-            data["categorias"].append(nueva_categoria)
-            for producto in data["productos"]:
-                if categoria_actual in producto["categorias"]:
-                    index = producto["categorias"].index(categoria_actual)
-                    producto["categorias"][index] = nueva_categoria
-            guardar_memory(data)
-            print("Categoría modificada correctamente.")
-            return True
-        else:
-            error_no_encontrado("Categoría", categoria_actual)
-            return False
-
-    else:
-        seleccion = normalizar(input("""Gestionar categorías:
-        1. Ver todas las categorías
-        2. Ingresar categoría
-        3. Eliminar categoría
-        4. Modificar categoría
-        5. Volver
-    Seleccione una opción: """))
-
-        match seleccion:
-            case "1" | "uno" | "ver categorías":
-                if data["categorias"]:
-                    print("Categorías disponibles:")
-                    for i, cat in enumerate(data["categorias"], 1):
-                        print(f"  {i}. {cat}")
-                else:
-                    print("No hay categorías registradas.")
-                return True
-
-            case "2" | "dos" | "ingresar categoría":
-                nueva_categoria = input("Ingrese la nueva categoría: ")
-                if nueva_categoria in data["categorias"]:
-                    error_ya_existe("categoría", nueva_categoria)
-                    return False
-                data["categorias"].append(nueva_categoria)
-                guardar_memory(data)
-                print("Categoría ingresada correctamente.")
-                return True
-
-            case "3" | "tres" | "eliminar categoría":
-                if not data["categorias"]:
-                    print("No hay categorías para eliminar.")
-                    return False
-
-                print("Categorías disponibles:")
-                for i, cat in enumerate(data["categorias"], 1):
-                    print(f"  {i}. {cat}")
-
-                categoria_eliminar = input("Ingrese la categoría a eliminar: ")
-                if categoria_eliminar in data["categorias"]:
-                    data["categorias"].remove(categoria_eliminar)
-                    for producto in data["productos"]:
-                        if categoria_eliminar in producto["categorias"]:
-                            producto["categorias"].remove(categoria_eliminar)
-                    guardar_memory(data)
-                    print("Categoría eliminada correctamente.")
-                    return True
-                else:
-                    error_no_encontrado("Categoría", categoria_eliminar)
-                    return False
-
-            case "4" | "cuatro" | "modificar categoría":
-                if not data["categorias"]:
-                    print("No hay categorías para modificar.")
-                    return False
-
-                print("Categorías disponibles:")
-                for i, cat in enumerate(data["categorias"], 1):
-                    print(f"  {i}. {cat}")
-
-                categoria_actual = input("Ingrese la categoría a modificar: ")
-                if categoria_actual in data["categorias"]:
-                    nueva_categoria = input("Ingrese la nueva categoría: ")
-                    data["categorias"].remove(categoria_actual)
-                    data["categorias"].append(nueva_categoria)
-                    for producto in data["productos"]:
-                        if categoria_actual in producto["categorias"]:
-                            index = producto["categorias"].index(
-                                categoria_actual)
-                            producto["categorias"][index] = nueva_categoria
-                    guardar_memory(data)
-                    print("Categoría modificada correctamente.")
-                    return True
-                else:
-                    error_no_encontrado("Categoría", categoria_actual)
-                    return False
-
-            case "5" | "cinco" | "volver":
-                return False
-
-            case _:
-                print("Error! Opción no válida.")
-                return False
+    actualizar_categorias()
+    return
 
 
 def verificar_umbral_minimo():
-    data = cargar_memory()
-    productos_bajo_umbral = []
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        productos_bajo_umbral = []
 
-    for producto in data["productos"]:
-        umbral = producto.get("umbral_minimo", 0)
-        if producto["existencias"] <= umbral:
-            productos_bajo_umbral.append(producto)
+        for lineas in arch:
+            linea = json.loads(lineas)
+            umbral = linea.get("umbral_minimo", 0)
+            if linea["existencias"] <= umbral:
+                productos_bajo_umbral.append(linea)
 
-    if productos_bajo_umbral:
-        print("Productos por debajo del umbral mínimo:")
-        for prod in productos_bajo_umbral:
-            umbral = prod.get("umbral_minimo", 0)
-            print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral: {umbral})")
-        escribir_log(f"Alertas de umbral mínimo: {len(productos_bajo_umbral)} productos", nivel="WARNING")
-    else:
-        print("Todos los productos están por encima del umbral mínimo.")
+        arch.close()
 
-    return productos_bajo_umbral
+        if productos_bajo_umbral:
+            print("Productos por debajo del umbral mínimo:")
+            for prod in productos_bajo_umbral:
+                umbral = prod.get("umbral_minimo", 0)
+                print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral: {umbral})")
+            escribir_log(f"Alertas de umbral mínimo: {len(productos_bajo_umbral)} productos", nivel="WARNING")
+        else:
+            print("Todos los productos están por encima del umbral mínimo.")
+
+        return productos_bajo_umbral
+    except FileNotFoundError:
+        print("no hay archivo")
+        return []
 
 
 def verificar_sobre_almacenamiento():
-    data = cargar_memory()
-    productos_sobre_almacenamiento = []
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        productos_sobre_almacenamiento = []
 
-    for producto in data["productos"]:
-        umbral_maximo = producto.get("umbral_maximo", 0)
-        if umbral_maximo > 0 and producto["existencias"] > umbral_maximo:
-            productos_sobre_almacenamiento.append(producto)
+        for lineas in arch:
+            linea = json.loads(lineas)
+            umbral_maximo = linea.get("umbral_maximo", 0)
+            if umbral_maximo > 0 and linea["existencias"] > umbral_maximo:
+                productos_sobre_almacenamiento.append(linea)
 
-    if productos_sobre_almacenamiento:
-        print("Productos con sobre almacenamiento:")
-        for prod in productos_sobre_almacenamiento:
-            umbral_maximo = prod.get("umbral_maximo", 0)
-            print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral máximo: {umbral_maximo})")
-        escribir_log(f"Alertas de sobre almacenamiento: {len(productos_sobre_almacenamiento)} productos", nivel="WARNING")
-    else:
-        print("No hay productos con sobre almacenamiento.")
+        arch.close()
 
-    return productos_sobre_almacenamiento
+        if productos_sobre_almacenamiento:
+            print("Productos con sobre almacenamiento:")
+            for prod in productos_sobre_almacenamiento:
+                umbral_maximo = prod.get("umbral_maximo", 0)
+                print(f"{prod['nombre']} (SKU: {prod['sku']}): {prod['existencias']} existencias (Umbral máximo: {umbral_maximo})")
+            escribir_log(f"Alertas de sobre almacenamiento: {len(productos_sobre_almacenamiento)} productos", nivel="WARNING")
+        else:
+            print("No hay productos con sobre almacenamiento.")
+
+        return productos_sobre_almacenamiento
+    except FileNotFoundError:
+        print("no hay archivo")
+        return []
 
 
 def configurar_umbral_minimo():
-    data = cargar_memory()
-
     try:
         sku = int(input("Ingrese el SKU del producto: "))
-
-        for producto in data["productos"]:
-            if producto["sku"] == sku:
-                print(f"Producto: {producto['nombre']}")
-                print(f"Existencias actuales: {producto['existencias']}")
-                umbral_actual = producto.get("umbral_minimo", "No configurado")
+        
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'wt', encoding='UTF8')
+        modificado = False
+        
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea["sku"] == sku:
+                print(f"Producto: {linea['nombre']}")
+                print(f"Existencias actuales: {linea['existencias']}")
+                umbral_actual = linea.get("umbral_minimo", "No configurado")
                 print(f"Umbral actual: {umbral_actual}")
 
-                nuevo_umbral = int(
-                    input("Ingrese el nuevo umbral mínimo (0 para desactivar): "))
+                nuevo_umbral = int(input("Ingrese el nuevo umbral mínimo (0 para desactivar): "))
 
                 if nuevo_umbral < 0:
                     print("¡Error! El umbral no puede ser negativo.")
+                    arch.close()
+                    temp.close()
                     return False
 
-                producto["umbral_minimo"] = nuevo_umbral
-                guardar_memory(data)
-
+                linea["umbral_minimo"] = nuevo_umbral
+                modificado = True
+                
                 if nuevo_umbral == 0:
                     print("Umbral mínimo desactivado para este producto.")
                     escribir_log(f"Umbral desactivado para SKU {sku}", nivel="INFO")
@@ -1064,78 +934,109 @@ def configurar_umbral_minimo():
                     print(f"Umbral mínimo configurado en {nuevo_umbral}.")
                     escribir_log(f"Umbral configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
 
-                    if producto["existencias"] <= nuevo_umbral:
+                    if linea["existencias"] <= nuevo_umbral:
                         print("¡Advertencia! El producto está por debajo del nuevo umbral.")
-
-                return True
-
-        error_no_encontrado("SKU", sku)
-        return False
-
+            
+            temp.write(json.dumps(linea) + '\n')
+        
+        arch.close()
+        temp.close()
+        
+        if modificado:
+            os.remove('memoria.txt')
+            os.rename('temp.txt', 'memoria.txt')
+            return True
+        else:
+            os.remove('temp.txt')
+            error_no_encontrado("SKU", sku)
+            return False
+            
     except ValueError:
         error_valor_numerico("umbral")
         return False
 
 
 def configurar_umbral_maximo():
-    data = cargar_memory()
-
     try:
         sku = int(input("Ingrese el SKU del producto: "))
-
-        for producto in data["productos"]:
-            if producto["sku"] == sku:
-                print(f"Producto: {producto['nombre']}")
-                print(f"Existencias actuales: {producto['existencias']}")
-                umbral_actual = producto.get("umbral_maximo", "No configurado")
+        
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        temp = open('temp.txt', 'wt', encoding='UTF8')
+        modificado = False
+        
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea["sku"] == sku:
+                print(f"Producto: {linea['nombre']}")
+                print(f"Existencias actuales: {linea['existencias']}")
+                umbral_actual = linea.get("umbral_maximo", "No configurado")
                 print(f"Umbral máximo actual: {umbral_actual}")
 
-                nuevo_umbral = int(
-                    input("Ingrese el nuevo umbral máximo (-1 para desactivar): "))
+                nuevo_umbral = int(input("Ingrese el nuevo umbral máximo (-1 para desactivar): "))
 
                 if nuevo_umbral < -1:
                     print("¡Error! El umbral no puede ser negativo.")
+                    arch.close()
+                    temp.close()
                     return False
 
-                producto["umbral_maximo"] = nuevo_umbral
-                guardar_memory(data)
-
-                if nuevo_umbral == 0:
+                linea["umbral_maximo"] = nuevo_umbral
+                modificado = True
+                
+                if nuevo_umbral == -1:
                     print("Umbral máximo desactivado para este producto.")
                     escribir_log(f"Umbral máximo desactivado para SKU {sku}", nivel="INFO")
                 else:
                     print(f"Umbral máximo configurado en {nuevo_umbral}.")
                     escribir_log(f"Umbral máximo configurado para SKU {sku}: {nuevo_umbral}", nivel="INFO")
 
-                    if producto["existencias"] > nuevo_umbral:
+                    if linea["existencias"] > nuevo_umbral:
                         print("¡Advertencia! El producto supera el nuevo umbral máximo.")
-
-                return True
-
-        error_no_encontrado("SKU", sku)
-        return False
-
+            
+            temp.write(json.dumps(linea) + '\n')
+        
+        arch.close()
+        temp.close()
+        
+        if modificado:
+            os.remove('memoria.txt')
+            os.rename('temp.txt', 'memoria.txt')
+            return True
+        else:
+            os.remove('temp.txt')
+            error_no_encontrado("SKU", sku)
+            return False
+            
     except ValueError:
         error_valor_numerico("umbral")
         return False
 
 
 def existencias_sin_stock():
-    data = cargar_memory()
-    productos = data["productos"]
+    try:
+        arch = open('memoria.txt', 'rt', encoding='UTF8')
+        sin_stock = []
 
-    sin_stock = [prod for prod in productos if prod["existencias"] == 0]
+        for lineas in arch:
+            linea = json.loads(lineas)
+            if linea["existencias"] == 0:
+                sin_stock.append(linea)
 
-    if sin_stock:
-        print("Productos sin existencias:")
-        for prod in sin_stock:
-            print(f"{prod['nombre']} (SKU: {prod['sku']})")
+        arch.close()
+
+        if sin_stock:
+            print("Productos sin existencias:")
+            for prod in sin_stock:
+                print(f"{prod['nombre']} (SKU: {prod['sku']})")
             print(f"Total: {len(sin_stock)} productos")
-    else:
-        print("No hay productos sin existencias.")
+        else:
+            print("No hay productos sin existencias.")
 
-    escribir_log(f"Consultados productos sin stock: {len(sin_stock)}", nivel="INFO")
-    return len(sin_stock) > 0
+        escribir_log(f"Consultados productos sin stock: {len(sin_stock)}", nivel="INFO")
+        return len(sin_stock) > 0
+    except FileNotFoundError:
+        print("no hay archivo")
+        return False
 
 
 def productos_por_categoria():
@@ -1189,9 +1090,9 @@ def formatearDB():
     confirmacion = normalizar(input("¿Desea formatear la base de datos? Esta acción es irreversible. (ingrese 'CONFIRMAR' para continuar): "))
 
     if confirmacion == "confirmar":
-        memoria = open(memoria.txt, 'w', encoding='UTF8') 
+        memoria = open('memoria.txt', 'w', encoding='UTF8') 
         memoria.close()
-        categorias = open(categorias.txt, 'w', encoding='UTF8') 
+        categorias = open('categorias.txt', 'w', encoding='UTF8') 
         categorias.close()
         print("Información: Base de datos formateada correctamente.")
         escribir_log("Base de datos formateada", nivel="CRITICAL")
@@ -1553,6 +1454,53 @@ def gestionar_proveedores():
             print(f"No se encontraron productos del proveedor '{proveedor_buscar}'")
 
     return True
+
+def buscarRec(buscarCat, lineas, indice=0, barato=None, caro=None):
+    if indice >= len(lineas):
+        return barato, caro
+    
+    linea = json.loads(lineas[indice])
+    
+    tiene_categoria = False
+    for cat in buscarCat:
+        if cat in linea.get("categorias", []):
+            tieneCategoria = True
+            break
+    
+    if tieneCategoria:
+        precioActual = linea.get("precio", 0)
+        nombreActual = linea.get("nombre_producto", "")
+        skuActual = linea.get("SKU", 0)
+        
+        if barato is None or precioActual < barato.get("precio", float('inf')):
+            barato = {"nombre": nombreActual, "SKU": skuActual, "precio": precioActual}
+        
+        if caro is None or precioActual > caro.get("precio", 0):
+            caro = {"nombre": nombreActual, "SKU": skuActual, "precio": precioActual}
+    
+    return buscarRec(buscarCat, lineas, indice + 1, barato, caro)
+
+def mostrarPrecios():
+    ingresarCat = input("Ingrese categorías a buscar (separadas por comas): ")
+    buscarCateg = [normalizar(cat.strip()) for cat in ingresarCat.split(",") if cat.strip()]
+    
+    if not buscarCateg:
+        print("No ingresó categorías válidas.")
+        return
+    
+    arch = open('memoria.txt', 'rt', encoding='UTF8')
+    lineas = arch.readlines()
+    arch.close()
+    
+    barato, caro = buscarRec(buscarCateg, lineas)
+    
+    if barato is None or caro is None:
+        print("No se encontraron productos en esas categorías.")
+        return
+    
+    print(f"Producto más barato: {barato['nombre']} (SKU: {barato['SKU']}) - ${barato['precio']:.2f}")
+    print(f"Producto más caro: {caro['nombre']} (SKU: {caro['SKU']}) - ${caro['precio']:.2f}")
+
 
 def exit_program():
     print("¡Gracias por usar genzaloSTORAGE!")

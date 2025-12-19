@@ -1,4 +1,7 @@
-
+from colorama import init, Fore, Back, Style
+init(autoreset=True)
+import json
+import os
 from funcion import (
     normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo,
     buscar, escribir_log, verificar_umbral_minimo, configurar_umbral_minimo,
@@ -6,8 +9,8 @@ from funcion import (
     cargar_memory, ingresar_paquete, configurar_umbral_maximo, 
     verificar_vencimientos_proximos, configurar_alerta_vencimiento, verificar_vencidos, 
     ver_productos_no_perecederos, verificar_alertas_vencimiento, ver_todas_alertas_vencimiento, 
-    ver_todos_lotes, buscar_por_lote, ver_proximo_vencer_lotes, verificar_sobre_almacenamiento, ver_sin_vencimiento_registrado, 
-    gestionar_proveedores, limpiarPantalla, cargar_categorias)
+    ver_todos_lotes, buscar_por_lote, ver_proximo_vencer_lotes, verificar_sobre_almacenamiento, 
+    ver_sin_vencimiento_registrado, gestionar_proveedores, limpiarPantalla, cargar_categorias)
 
 
 def menu_principal():
@@ -15,75 +18,74 @@ def menu_principal():
     print(f"""╔══════════════════════════════╗
 ║     SISTEMA DE INVENTARIO    ║
 ╠══════════════════════════════╣
-║ 0. Ingreso / Egreso          ║
-║ 1. SKU                       ║
-║ 2. Categorías                ║
-║ 3. Buscar                    ║
-║ 4. Umbrales                  ║
-║ 5. Lotes                     ║
-║ 6. Vencimientos              ║
-║ 7. Otras opciones            ║
+║ 0. Ingreso / Egreso          ║""")
+    print(f"║ " + Fore.BLUE + "1. SKU" + Style.RESET_ALL + "                       ║")
+    print(f"║ " + Fore.RED + "2. Categorías" + Style.RESET_ALL + "                ║")
+    print(f"║ " + Fore.GREEN + "3. Buscar" + Style.RESET_ALL + "                    ║")
+    print(f"║ " + Fore.MAGENTA + "4. Umbrales" + Style.RESET_ALL + "                  ║")
+    print(f"║ " + Fore.CYAN + "5. Lotes" + Style.RESET_ALL + "                     ║")
+    print(f"║ " + Fore.YELLOW + "6. Vencimientos" + Style.RESET_ALL + "              ║")
+    print(f"""║ 7. Otras opciones            ║
 ║ 8. Salir                     ║
 ╚══════════════════════════════╝""")
 
 
 def menu_sku():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.BLUE + f"""╔══════════════════════════════╗
 ║        GESTIÓN DE SKU        ║
 ╠══════════════════════════════╣
 ║ 1. Agregar SKU               ║
-║ 2. Agregar SKU por paquete   ║
-║ 3. Eliminar SKU              ║
-║ 4. Modificar SKU             ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ 2. Eliminar SKU              ║
+║ 3. Modificar SKU             ║""")
+    print(Fore.BLUE + "║ " + Style.RESET_ALL + "4. Volver al menú principal  " + Fore.BLUE + "║")
+    print(Fore.BLUE + "║ " + Style.RESET_ALL + "5. Salir                     " + Fore.BLUE + "║")
+    print(Fore.BLUE + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def menu_categorias():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.RED + f"""╔══════════════════════════════╗
 ║     GESTIÓN DE CATEGORÍAS    ║
 ╠══════════════════════════════╣
 ║ 1. Agregar categoría         ║
 ║ 2. Eliminar categoría        ║
 ║ 3. Modificar categoría       ║
 ║ 4. Ver todas las categorías  ║
-║ 5. Ver prod. por categoría   ║
-║ 6. Volver al menú principal  ║
-║ 7. Salir                     ║
-╚══════════════════════════════╝""")
+║ 5. Ver prod. por categoría   ║""")
+    print(Fore.RED + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.RED + "║")
+    print(Fore.RED + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.RED + "║")
+    print(Fore.RED + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def menu_buscar():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.GREEN + f"""╔══════════════════════════════╗
 ║           BUSQUEDA           ║
 ╠══════════════════════════════╣
 ║ 1. SKU                       ║
 ║ 2. Producto                  ║
 ║ 3. Cantidad                  ║
 ║ 4. Precio                    ║
-║ 5. Categoria                 ║
-║ 6. Volver al menú principal  ║
-║ 7. Salir                     ║
-╚══════════════════════════════╝""")
+║ 5. Categoria                 ║""")
+    print(Fore.GREEN + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.GREEN + "║")
+    print(Fore.GREEN + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.GREEN + "║")
+    print(Fore.GREEN + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def menu_umbral():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.MAGENTA + f"""╔══════════════════════════════╗
 ║      GESTIÓN DE UMBRALES     ║
 ╠══════════════════════════════╣
 ║ 1. Ver alertas de inventario ║
 ║ 2. Configurar umbral mínimo  ║
 ║ 3. Configurar umbral máximo  ║
 ║ 4. Ver sobre almacenamiento  ║
-║ 5. Ver productos sin stock   ║
-║ 6. Volver al menú principal  ║
-║ 7. Salir                     ║
-╚══════════════════════════════╝""")
+║ 5. Ver productos sin stock   ║""")
+    print(Fore.MAGENTA + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.MAGENTA + "║")
+    print(Fore.MAGENTA + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.MAGENTA + "║")
+    print(Fore.MAGENTA + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def menu_otros():
@@ -97,46 +99,33 @@ def menu_otros():
 ║ 4. Salir                     ║
 ╚══════════════════════════════╝""")
 
+
 def menu_vencimientos():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.YELLOW + f"""╔══════════════════════════════╗
 ║        VENCIMIENTOS          ║
 ╠══════════════════════════════╣
 ║ 1. Ver productos próximos    ║
 ║ 2. Configurar alertas        ║
 ║ 3. Ver productos vencidos    ║
 ║ 4. Ver no perecederos        ║
-║ 5. Ver prod. s/ venc. reg.   ║
-║ 6. Volver al menú principal  ║
-║ 7. Salir                     ║
-╚══════════════════════════════╝""")
-
-
-def menu_estadisticas():
-    limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
-║         ESTADÍSTICAS         ║
-╠══════════════════════════════╣
-║ 1. Resumen general           ║
-║ 2. Productos por categoría   ║
-║ 3. Distribución de precios   ║
-║ 4. Volver al menú anterior   ║
-║ 5. Salir del programa        ║
-╚══════════════════════════════╝""")
+║ 5. Ver prod. s/ venc. reg.   ║""")
+    print(Fore.YELLOW + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.YELLOW + "║")
+    print(Fore.YELLOW + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.YELLOW + "║")
+    print(Fore.YELLOW + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def menu_lotes():
     limpiarPantalla()
-    print(f"""╔══════════════════════════════╗
+    print(Fore.CYAN + f"""╔══════════════════════════════╗
 ║        GESTIÓN DE LOTES      ║
 ╠══════════════════════════════╣
 ║ 1. Ver todos los lotes       ║
 ║ 2. Buscar por lote           ║
-║ 3. Configurar método salida  ║
-║ 4. Ver próximo a vencer      ║
-║ 5. Volver al menú principal  ║
-║ 6. Salir                     ║
-╚══════════════════════════════╝""")
+║ 3. Ver próximo a vencer      ║""")
+    print(Fore.CYAN + "║ " + Style.RESET_ALL + "4. Volver al menú principal  " + Fore.CYAN + "║")
+    print(Fore.CYAN + "║ " + Style.RESET_ALL + "5. Salir                     " + Fore.CYAN + "║")
+    print(Fore.CYAN + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
 def exit_program():
@@ -156,7 +145,75 @@ try:
 
         match normalizar(seleccion):
             case "0" | "cero" | "ingreso" | "egreso":
-                print("Ingrese el SKU o nombre del producto para registrar ingreso/egreso.")
+                while True:
+                    entrada = input("Ingrese SKU o nombre del producto: ")
+                    
+                    try:
+                        sku = int(entrada)
+                        encontrado = False
+                        arch = open('memoria.txt', 'rt', encoding='UTF8')
+                        for lineas in arch:
+                            linea = json.loads(lineas)
+                            if linea.get("SKU") == sku:
+                                encontrado = True
+                                producto = linea
+                                break
+                        arch.close()
+                    except ValueError:
+                        encontrado = False
+                        arch = open('memoria.txt', 'rt', encoding='UTF8')
+                        for lineas in arch:
+                            linea = json.loads(lineas)
+                            nombre_producto = linea.get("nombre_producto")
+                            if nombre_producto:
+                                if normalizar(nombre_producto) == normalizar(entrada):
+                                    encontrado = True
+                                    producto = linea
+                                    break
+                        arch.close()
+                    
+                    if not encontrado:
+                        print("Producto no encontrado")
+                        continue
+                    
+                    print(f"Producto: {producto['nombre_producto']}")
+                    print(f"Existencias actuales: {producto['existencias']}")
+                    
+                    try:
+                        cantidad = int(input("Ingrese cantidad a modificar (0 para cancelar): "))
+                    except ValueError:
+                        print("Error: no es int")
+                        continue
+                    
+                    if cantidad == 0:
+                        continue
+                    
+                    if cantidad > 0:
+                        producto["existencias"] += cantidad
+                        print(f"Se añadieron {cantidad} unidades")
+                    else:
+                        if producto["existencias"] + cantidad < 0:
+                            print("No hay suficiente stock")
+                            continue
+                        producto["existencias"] += cantidad
+                        print(f"Se retiraron {-cantidad} unidades")
+                    
+                    arch = open('memoria.txt', 'rt', encoding='UTF8')
+                    temp = open('temp.txt', 'wt', encoding='UTF8')
+                    
+                    for lineas in arch:
+                        linea = json.loads(lineas)
+                        if linea.get("SKU") == producto.get("SKU"):
+                            linea["existencias"] = producto["existencias"]
+                        temp.write(json.dumps(linea) + '\n')
+                    
+                    arch.close()
+                    temp.close()
+                    os.remove('memoria.txt')
+                    os.rename('temp.txt', 'memoria.txt')
+                    continuar = int(input("Ingrese cualquier numero o -1 para salir: "))
+                    if continuar == -1:
+                        break
                 
 
             case "1" | "uno" | "sku":
@@ -168,26 +225,19 @@ try:
                         case "1" | "uno" | "agregar" | "agregar sku":
                             while continuar != "-1":
                                 ingresar()
-                                continuar = input(
-                                    "Ingrese cualquier valor para seguir o ingrese -1 para salir: ")
+                                continuar = input("Ingrese cualquier valor para seguir o ingrese -1 para salir: ")
 
-                        case "2" | "dos" | "agregar paquete" | "paquete":
-                            while continuar != -1:
-                                ingresar_paquete()
-                                continuar = int(
-                                    input("Ingrese cualquier valor para seguir o ingrese -1 para salir: "))
-
-                        case "3" | "tres" | "eliminar" | "eliminar sku":
+                        case "2" | "dos" | "eliminar" | "eliminar sku":
                             eliminar()
 
-                        case "4" | "cuatro" | "modificar" | "modificar sku":
+                        case "3" | "tres" | "modificar" | "modificar sku":
                             modificar()
                             input("Presione Intro para continuar.")
 
-                        case "5" | "cinco" | "volver" | "menu principal":
+                        case "4" | "cuatro" | "volver" | "menu principal":
                             break
 
-                        case "6" | "seis" | "salir":
+                        case "5" | "cinco" | "salir":
                             exit_program()
 
                         case _:
@@ -235,8 +285,7 @@ try:
                     limpiarPantalla()
                     menu_buscar()
                     buscar()
-                    seguir = input(
-                        "\nPresione 1 para volver al menú principal o Enter para seguir buscando: ")
+                    seguir = input("\nPresione 1 para volver al menú principal o Enter para seguir buscando: ")
                     if seguir == "1":
                         break
 
@@ -290,18 +339,14 @@ try:
                             buscar_por_lote()
                             input("Presione Intro para continuar.")
 
-                        case "3" | "tres" | "configurar metodo":
-                            "configurar_metodo_salida()"
-                            input("Presione Intro para continuar.")
-
-                        case "4" | "cuatro" | "proximo vencer":
+                        case "3" | "tres" | "proximo vencer":
                             ver_proximo_vencer_lotes()
                             input("Presione Intro para continuar.")
 
-                        case "5" | "cinco" | "volver":
+                        case "4" | "cuatro" | "volver":
                             break
 
-                        case "6" | "seis" | "salir":
+                        case "5" | "cinco" | "salir":
                             exit_program()
 
                         case _:
