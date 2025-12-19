@@ -5,12 +5,9 @@ import os
 from funcion import (
     normalizar, ingresar, eliminar, modificar, gestionar_categoria_modo,
     buscar, escribir_log, verificar_umbral_minimo, configurar_umbral_minimo,
-    existencias_sin_stock, productos_por_categoria, versionGS, formatearDB, 
-    cargar_memory, ingresar_paquete, configurar_umbral_maximo, 
-    verificar_vencimientos_proximos, configurar_alerta_vencimiento, verificar_vencidos, 
-    ver_productos_no_perecederos, verificar_alertas_vencimiento, ver_todas_alertas_vencimiento, 
-    ver_todos_lotes, buscar_por_lote, ver_proximo_vencer_lotes, verificar_sobre_almacenamiento, 
-    ver_sin_vencimiento_registrado, gestionar_proveedores, limpiarPantalla, cargar_categorias)
+    existencias_sin_stock, versionGS, formatearDB, 
+    cargar_memory, configurar_umbral_maximo, 
+    verificar_sobre_almacenamiento, limpiarPantalla, cargar_categorias)
 
 
 def menu_principal():
@@ -23,9 +20,7 @@ def menu_principal():
     print(f"║ " + Fore.RED + "2. Categorías" + Style.RESET_ALL + "                ║")
     print(f"║ " + Fore.GREEN + "3. Buscar" + Style.RESET_ALL + "                    ║")
     print(f"║ " + Fore.MAGENTA + "4. Umbrales" + Style.RESET_ALL + "                  ║")
-    print(f"║ " + Fore.CYAN + "5. Lotes" + Style.RESET_ALL + "                     ║")
-    print(f"║ " + Fore.YELLOW + "6. Vencimientos" + Style.RESET_ALL + "              ║")
-    print(f"""║ 7. Otras opciones            ║
+    print(f"""║ 5. Otras opciones            ║
 ║ 8. Salir                     ║
 ╚══════════════════════════════╝""")
 
@@ -48,13 +43,10 @@ def menu_categorias():
     print(Fore.RED + f"""╔══════════════════════════════╗
 ║     GESTIÓN DE CATEGORÍAS    ║
 ╠══════════════════════════════╣
-║ 1. Agregar categoría         ║
-║ 2. Eliminar categoría        ║
-║ 3. Modificar categoría       ║
-║ 4. Ver todas las categorías  ║
-║ 5. Ver prod. por categoría   ║""")
-    print(Fore.RED + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.RED + "║")
-    print(Fore.RED + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.RED + "║")
+║ 1. Listar categorias         ║
+║ 2. Eliminar categoría        ║""")
+    print(Fore.RED + "║ " + Style.RESET_ALL + "3. Volver al menú principal  " + Fore.RED + "║")
+    print(Fore.RED + "║ " + Style.RESET_ALL + "4. Salir                     " + Fore.RED + "║")
     print(Fore.RED + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
 
 
@@ -100,34 +92,6 @@ def menu_otros():
 ╚══════════════════════════════╝""")
 
 
-def menu_vencimientos():
-    limpiarPantalla()
-    print(Fore.YELLOW + f"""╔══════════════════════════════╗
-║        VENCIMIENTOS          ║
-╠══════════════════════════════╣
-║ 1. Ver productos próximos    ║
-║ 2. Configurar alertas        ║
-║ 3. Ver productos vencidos    ║
-║ 4. Ver no perecederos        ║
-║ 5. Ver prod. s/ venc. reg.   ║""")
-    print(Fore.YELLOW + "║ " + Style.RESET_ALL + "6. Volver al menú principal  " + Fore.YELLOW + "║")
-    print(Fore.YELLOW + "║ " + Style.RESET_ALL + "7. Salir                     " + Fore.YELLOW + "║")
-    print(Fore.YELLOW + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
-
-
-def menu_lotes():
-    limpiarPantalla()
-    print(Fore.CYAN + f"""╔══════════════════════════════╗
-║        GESTIÓN DE LOTES      ║
-╠══════════════════════════════╣
-║ 1. Ver todos los lotes       ║
-║ 2. Buscar por lote           ║
-║ 3. Ver próximo a vencer      ║""")
-    print(Fore.CYAN + "║ " + Style.RESET_ALL + "4. Volver al menú principal  " + Fore.CYAN + "║")
-    print(Fore.CYAN + "║ " + Style.RESET_ALL + "5. Salir                     " + Fore.CYAN + "║")
-    print(Fore.CYAN + f"""╚══════════════════════════════╝""" + Style.RESET_ALL)
-
-
 def exit_program():
     print("¡Gracias por usar genzaloSTORAGE!")
     raise SystemExit
@@ -147,7 +111,6 @@ try:
             case "0" | "cero" | "ingreso" | "egreso":
                 while True:
                     entrada = input("Ingrese SKU o nombre del producto: ")
-                    
                     try:
                         sku = int(entrada)
                         encontrado = False
@@ -250,30 +213,18 @@ try:
                     opcion_cat = input("Seleccione una opción: ")
 
                     match normalizar(opcion_cat):
-                        case "1" | "uno" | "agregar" | "agregar categoría":
-                            gestionar_categoria_modo("agregar")
+                        case "1" | "uno" | "ver" | "ver categorías":
+                            gestionar_categoria_modo("ver")
                             input("Presione Intro para continuar.")
 
                         case "2" | "dos" | "eliminar" | "eliminar categoría":
                             gestionar_categoria_modo("eliminar")
                             input("Presione Intro para continuar.")
-
-                        case "3" | "tres" | "modificar" | "modificar categoría":
-                            gestionar_categoria_modo("modificar")
-                            input("Presione Intro para continuar.")
-
-                        case "4" | "cuatro" | "ver" | "ver categorías":
-                            gestionar_categoria_modo("ver")
-                            input("Presione Intro para continuar.")
-
-                        case "5" | "cinco" | "volver" | "menu principal":
-                            productos_por_categoria("ver")
-                            input("Presione Intro para continuar.")
-
-                        case "6" | "seis" | "volver" | "menu principal":
+                        
+                        case "3"| "tres" | "volver":
                             break
 
-                        case "7" | "siete" | "salir":
+                        case "4" | "cuatro" | "salir":
                             exit_program()
 
                         case _:
@@ -325,71 +276,7 @@ try:
                             print("¡Error! Opción no válida.")
                             input("Presione Intro para continuar.")
 
-            case "5" | "cinco" | "lotes":
-                while True:
-                    menu_lotes()
-                    opcion_lotes = input("Seleccione una opción: ")
-
-                    match normalizar(opcion_lotes):
-                        case "1" | "uno" | "ver lotes":
-                            ver_todos_lotes()
-                            input("Presione Intro para continuar.")
-
-                        case "2" | "dos" | "buscar lote":
-                            buscar_por_lote()
-                            input("Presione Intro para continuar.")
-
-                        case "3" | "tres" | "proximo vencer":
-                            ver_proximo_vencer_lotes()
-                            input("Presione Intro para continuar.")
-
-                        case "4" | "cuatro" | "volver":
-                            break
-
-                        case "5" | "cinco" | "salir":
-                            exit_program()
-
-                        case _:
-                            print("¡Error! Opción no válida.")
-                            input("Presione Intro para continuar.")
-
-            case "6" | "seis" | "vencimientos":
-                while True:
-                    menu_vencimientos()
-                    opcion_venc = input("Seleccione una opción: ")
-
-                    match normalizar(opcion_venc):
-                        case "1" | "uno" | "ver alertas":
-                            verificar_vencimientos_proximos()
-                            input("Presione Intro para continuar.")
-
-                        case "2" | "dos" | "configurar alerta":
-                            configurar_alerta_vencimiento()
-                            input("Presione Intro para continuar.")
-
-                        case "3" | "tres" | "ver vencidos":
-                            verificar_vencidos()
-                            input("Presione Intro para continuar.")
-
-                        case "4" | "cuatro" | "no perecederos":
-                            ver_productos_no_perecederos()
-                            input("Presione Intro para continuar.")
-
-                        case "5" | "cinco" | "sin vencimiento":
-                            ver_sin_vencimiento_registrado()
-                            input("Presione Intro para continuar.")
-
-                        case "6" | "seis" | "volver":
-                            break
-
-                        case "7" | "siete" | "salir":
-                            exit_program()
-
-                        case _:
-                            print("¡Error! Opción no válida.")
-                            input("Presione Intro para continuar.")
-
-            case "7" | "siete" | "otras opciones" | "otros":
+            case "5" | "cinco" | "otras opciones" | "otros":
                 while True:
                     menu_otros()
                     opcion_otros = input("Seleccione una opción: ")
